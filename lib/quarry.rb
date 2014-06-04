@@ -297,7 +297,7 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   # In case we generate a non-HEAD version of a package, we should clean /usr/bin
   # as it will conflict with a HEAD version of the package
   # Also remove binaries for conflicting gems.
-  remove_binaries = (!slot.nil? and !spec.executables.empty? or CONFLICTING_GEMS.include?(name))
+  remove_binaries = ((not slot.nil? or CONFLICTING_GEMS.include?(name)) and not spec.executables.empty?)
 
   # TODO: understand wtf rubygems needs  $_gemdir/extensions/ folder?
 
