@@ -43,6 +43,7 @@ GEM_SOURCE = Gem::Source.new(Gem.default_sources[0])
 QUARRY_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 INDEX_DIR = File.join(QUARRY_DIR, 'index')  # it is where we keep binary packages
 REPO_DB_FILE = File.join(INDEX_DIR, 'repo.db.tar.xz')
+CONFIG_PKG_DIR = File.join(QUARRY_DIR, 'config.pkg')
 WORK_DIR = File.join(QUARRY_DIR, 'work')
 WORK_REPO_DIR = File.join(WORK_DIR, 'repo')
 WORK_BUILD_DIR = File.join(WORK_DIR, 'build')
@@ -107,9 +108,10 @@ def load_arch_packages
   return result
 end
 
-def pkg_to_arch(name, slot)
-  result = 'ruby-' + name
-  result = result + '-' + slot if slot
+def pkg_to_arch(name, slot, with_prefix=true)
+  result = with_prefix ? 'ruby-' : ''
+  result += name
+  result += '-' + slot if slot
   return result
 end
 
@@ -255,7 +257,7 @@ def find_license_files(spec)
 end
 
 # Returns PKGBUILD content and binary filename to be build
-def generate_pkgbuild(name, slot, existing_pkg)
+def generate_pkgbuild(name, slot, existing_pkg, config)
   version = slot_to_version(name, slot)
   gem_path = download_gem(package_spec(name, version))
   spec = Gem::Package.new(gem_path).spec
@@ -288,6 +290,9 @@ def generate_pkgbuild(name, slot, existing_pkg)
   # filter out extensions dirs, does anybody use these dirs?
   required_dirs = required_dirs.select{|d| d.start_with?(install_dir)}.map{|d| d[install_dir.length..-1]}
   required_dirs << "bin"
+  if config and config['include']
+    required_dirs += config['include']
+  end
 
   # In case we generate a non-HEAD version of a package, we should clean /usr/bin
   # as it will conflict with a HEAD version of the package
@@ -323,7 +328,10 @@ def build_package(name, slot, existing_pkg)
   work_dir = File.join(WORK_BUILD_DIR, arch_name)
   FileUtils.mkpath(work_dir)
 
-  pkgbuild,bin_filename = generate_pkgbuild(name, slot, existing_pkg)
+  config_name = File.join(CONFIG_PKG_DIR, pkg_to_arch(name, slot, false) + '.yaml')
+  config = File.exists?(config_name) ? YAML.load(IO.read(config_name)) : nil
+
+  pkgbuild,bin_filename = generate_pkgbuild(name, slot, existing_pkg, config)
   Dir.chdir(work_dir) {
     IO.write('PKGBUILD', pkgbuild)
     `makepkg --install --noconfirm`
