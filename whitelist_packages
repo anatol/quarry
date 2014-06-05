@@ -1,6 +1,5 @@
 archive-tar-minitar
 bundler
-bundler
 capistrano
 celluloid
 chef
@@ -9,6 +8,7 @@ compass
 erubis
 ffi
 fog
+gpgme
 hike
 hoe
 i18n
