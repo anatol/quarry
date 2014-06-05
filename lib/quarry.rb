@@ -24,7 +24,7 @@ noextract=($_gemname-$pkgver.gem)
 sha1sums=('<%= sha1sum %>')
 
 package() {
-  local _gemdir="$(ruby -e'puts Gem.default_dir')"
+  local _gemdir="<%= gem_dir %>"
   gem install --ignore-dependencies --no-document --no-user-install -i "$pkgdir/$_gemdir" -n "$pkgdir"/usr/bin $_gemname-$pkgver.gem
   rm "$pkgdir/$_gemdir/cache/$_gemname-$pkgver.gem"
 <% for license_file in license_files %>
@@ -34,6 +34,11 @@ package() {
   # non-HEAD version should not install any files in /usr/bin
   rm -r "$pkgdir"/usr/bin/
 <% end %>
+  local _extdir="$pkgdir/<%= gem_extension_dir %>/$_gemname-$pkgver"
+  if [ -d "$_extdir" ]; then
+    rm -rf "$_extdir"/*
+    touch "$_extdir/gem.build_complete"
+  fi
   find "$pkgdir/$_gemdir/gems/$_gemname-$pkgver" -mindepth 1 -maxdepth 1 <%= required_dirs.map{|d| '! -name ' + d}.join(' ') %> -exec rm -r {} \\;
 }
 }
@@ -47,6 +52,10 @@ CONFIG_PKG_DIR = File.join(QUARRY_DIR, 'config.pkg')
 WORK_DIR = File.join(QUARRY_DIR, 'work')
 WORK_REPO_DIR = File.join(WORK_DIR, 'repo')
 WORK_BUILD_DIR = File.join(WORK_DIR, 'build')
+
+# TODO: choose other directory to avoid file conflicts?
+GEM_DIR = Gem.default_dir
+GEM_EXTENSION_DIR = File.join(GEM_DIR, 'extensions', Gem::Platform.local.to_s, Gem.extension_api_version)
 
 # gems that conflict with ruby package, 'ruby' already provides it
 CONFLICTING_GEMS = %w(rake rdoc)
@@ -299,8 +308,6 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   # Also remove binaries for conflicting gems.
   remove_binaries = ((not slot.nil? or CONFLICTING_GEMS.include?(name)) and not spec.executables.empty?)
 
-  # TODO: understand wtf rubygems needs  $_gemdir/extensions/ folder?
-
   # TOTHINK: install binaries into directory other than /usr/bin?
   params = {
     gem_name: name,
@@ -315,7 +322,9 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
     depends: dependencies.join(' '),
     license_files: find_license_files(spec),
     required_dirs: required_dirs,
-    remove_binaries: remove_binaries
+    remove_binaries: remove_binaries,
+    gem_dir: GEM_DIR,
+    gem_extension_dir: GEM_EXTENSION_DIR
   }
   content = Erubis::Eruby.new(PKGBUILD).result(params)
 
