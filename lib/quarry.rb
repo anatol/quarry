@@ -294,11 +294,8 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   filename_arch = spec.extensions.empty? ? 'any' : 'x86_64'
   bin_filename = "#{arch_name}-#{version}-#{pkgver}-#{filename_arch}.pkg.tar.xz"
 
-  required_dirs = spec.full_require_paths
-  install_dir = File.join(Gem.default_dir, 'gems', name + '-' + version) + '/'
-  # filter out extensions dirs, does anybody use these dirs?
-  required_dirs = required_dirs.select{|d| d.start_with?(install_dir)}.map{|d| d[install_dir.length..-1]}
-  required_dirs << "bin"
+  # spec.full_require_paths contains too much garbage
+  required_dirs = %w(bin lib)
   if config and config['include']
     required_dirs += config['include']
   end
