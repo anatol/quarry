@@ -328,7 +328,7 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   }
   content = Erubis::Eruby.new(PKGBUILD).result(params)
 
-  return content, bin_filename
+  return content, gem_path, bin_filename
 end
 
 # generates PKGBUILD, builds binary package for it, copies to index directory and adds it to the Arch repository
@@ -340,9 +340,10 @@ def build_package(name, slot, existing_pkg)
   config_name = File.join(CONFIG_PKG_DIR, pkg_to_arch(name, slot, false) + '.yaml')
   config = File.exists?(config_name) ? YAML.load(IO.read(config_name)) : nil
 
-  pkgbuild,bin_filename = generate_pkgbuild(name, slot, existing_pkg, config)
+  pkgbuild,gem_path,bin_filename = generate_pkgbuild(name, slot, existing_pkg, config)
   Dir.chdir(work_dir) {
     IO.write('PKGBUILD', pkgbuild)
+    FileUtils.cp(gem_path, '.')
     `makepkg --install --noconfirm`
     fail("The binary package was not built: #{bin_filename}") unless File.exists?(bin_filename)
     FileUtils.mv(bin_filename, File.join(INDEX_DIR, bin_filename))
