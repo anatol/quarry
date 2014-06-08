@@ -218,6 +218,7 @@ def init
   @gems_beta = load_gem_index(:prerelease)
 
   FileUtils.rm_rf(WORK_DIR)
+  FileUtils.mkdir(INDEX_DIR) unless File.directory?(INDEX_DIR)
 end
 
 def out_of_date_packages(existing_packages)
