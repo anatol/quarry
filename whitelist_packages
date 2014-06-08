@@ -24,6 +24,7 @@ rails,3
 rake
 rb-inotify
 rb-kqueue
+rmagick
 rspec
 sinatra
 sqlite3
