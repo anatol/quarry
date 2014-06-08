@@ -290,6 +290,9 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
     s = dependency_to_slot(d)
     pkg_to_arch(d.name, s)
   }
+  if config and config['dependencies']
+    dependencies = config['dependencies'] + dependencies
+  end
   existing_pkg[2] = dependencies
   filename_arch = spec.extensions.empty? ? 'any' : 'x86_64'
   bin_filename = "#{arch_name}-#{version}-#{pkgver}-#{filename_arch}.pkg.tar.xz"
