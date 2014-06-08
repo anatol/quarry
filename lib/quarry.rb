@@ -7,6 +7,25 @@ require 'rubygems/name_tuple'
 require 'rubygems/package'
 require 'rubygems/remote_fetcher'
 
+
+
+GEM_SOURCE = Gem::Source.new(Gem.default_sources[0])
+QUARRY_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+INDEX_DIR = File.join(QUARRY_DIR, 'index')  # it is where we keep binary packages
+REPO_DB_FILE = File.join(INDEX_DIR, 'repo.db.tar.xz')
+CONFIG_PKG_DIR = File.join(QUARRY_DIR, 'config.pkg')
+WORK_DIR = File.join(QUARRY_DIR, 'work')
+WORK_REPO_DIR = File.join(WORK_DIR, 'repo')
+WORK_BUILD_DIR = File.join(WORK_DIR, 'build')
+
+# TODO: choose other directory to avoid file conflicts?
+GEM_DIR = Gem.default_dir
+GEM_EXTENSION_DIR = File.join(GEM_DIR, 'extensions', Gem::Platform.local.to_s, Gem.extension_api_version)
+
+# gems that conflict with ruby package, 'ruby' already provides it
+CONFLICTING_GEMS = %w(rake rdoc)
+
+
 PKGBUILD = %{# Maintainer: Ruby quarry (https://github.com/anatol/quarry)
 
 _gemname=<%= gem_name %>
@@ -22,6 +41,18 @@ options=(!emptydirs)
 source=(https://rubygems.org/downloads/$_gemname-$pkgver.gem)
 noextract=($_gemname-$pkgver.gem)
 sha1sums=('<%= sha1sum %>')
+
+prepare() {
+  if [ -f '<%= CONFIG_PKG_DIR %>'/$_gemname.patch ]; then
+    rm -rf $_gemname-$pkgver
+    gem unpack $_gemname-$pkgver.gem
+    cd $_gemname-$pkgver
+    patch -p1 < '<%= CONFIG_PKG_DIR %>'/$_gemname.patch
+    gem build $_gemname.gemspec
+    mv $_gemname-$pkgver.gem ..
+    cd ..
+  fi
+}
 
 package() {
   local _gemdir="<%= gem_dir %>"
@@ -42,23 +73,6 @@ package() {
   find "$pkgdir/$_gemdir/gems/$_gemname-$pkgver" -mindepth 1 -maxdepth 1 <%= required_dirs.map{|d| '! -name ' + d}.join(' ') %> -exec rm -r {} \\;
 }
 }
-
-
-GEM_SOURCE = Gem::Source.new(Gem.default_sources[0])
-QUARRY_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))
-INDEX_DIR = File.join(QUARRY_DIR, 'index')  # it is where we keep binary packages
-REPO_DB_FILE = File.join(INDEX_DIR, 'repo.db.tar.xz')
-CONFIG_PKG_DIR = File.join(QUARRY_DIR, 'config.pkg')
-WORK_DIR = File.join(QUARRY_DIR, 'work')
-WORK_REPO_DIR = File.join(WORK_DIR, 'repo')
-WORK_BUILD_DIR = File.join(WORK_DIR, 'build')
-
-# TODO: choose other directory to avoid file conflicts?
-GEM_DIR = Gem.default_dir
-GEM_EXTENSION_DIR = File.join(GEM_DIR, 'extensions', Gem::Platform.local.to_s, Gem.extension_api_version)
-
-# gems that conflict with ruby package, 'ruby' already provides it
-CONFLICTING_GEMS = %w(rake rdoc)
 
 # returns name => [versions]
 def load_gem_index(type)
