@@ -380,9 +380,10 @@ def build_package(name, slot, existing_pkg)
   Dir.chdir(work_dir) {
     IO.write('PKGBUILD', pkgbuild)
     FileUtils.cp(gem_path, '.')
-    `makepkg --install --noconfirm`
+    `makepkg --install --noconfirm --sign`
     fail("The binary package was not built: #{bin_filename}") unless File.exists?(bin_filename)
-    FileUtils.mv(bin_filename, File.join(INDEX_DIR, bin_filename))
+    FileUtils.mv(bin_filename, INDEX_DIR)
+    FileUtils.mv(bin_filename + '.sig', INDEX_DIR)
   }
 
   `repo-add #{REPO_DB_FILE} #{File.join(INDEX_DIR, bin_filename)}`
