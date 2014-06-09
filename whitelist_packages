@@ -28,6 +28,7 @@ rmagick
 rspec
 sinatra
 sqlite3
+tilt
 thin
 thor
 tzinfo
