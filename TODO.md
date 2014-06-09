@@ -1,0 +1,7 @@
+- [ ] There should be a way to force one package rebuild, e.g. when its config is changed maintainer may decide to rebuild package
+- [ ] There should be a way for mass rebuilds, e.g. when ruby version has bumbped
+- [ ] Add GPG signing.
+- [ ] Add cleanup for unused slot versions
+- [ ] Add cleanup for old binary packages
+- [ ] Build packages in a clean chroot
+- [ ] Provide both 32 and 64 bit repositories
