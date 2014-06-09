@@ -346,15 +346,36 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   return content, gem_path, bin_filename
 end
 
+# For a given slot (e.g. '3.4.1') returns slots from less generic to more generic (['3.4.5', '3.4', '3'])
+def slot_ledder(slot)
+  return [] unless slot
+
+  result = []
+  while ind = slot.rindex('.')
+    result << slot
+    slot = slot[0..ind-1]
+  end
+  result << slot
+  return result
+end
+
+def load_config_file(name, slot)
+  slot_ledder(slot).each do |s|
+    config_name = File.join(CONFIG_PKG_DIR, name + '-' + s + '.yaml')
+    return YAML.load(IO.read(config_name)) if File.exists?(config_name)
+  end
+  config_name = File.join(CONFIG_PKG_DIR, name + '.yaml')
+  return YAML.load(IO.read(config_name)) if File.exists?(config_name)
+  return nil
+end
+
 # generates PKGBUILD, builds binary package for it, copies to index directory and adds it to the Arch repository
 def build_package(name, slot, existing_pkg)
   arch_name = pkg_to_arch(name, slot)
   work_dir = File.join(WORK_BUILD_DIR, arch_name)
   FileUtils.mkpath(work_dir)
 
-  config_name = File.join(CONFIG_PKG_DIR, pkg_to_arch(name, slot, false) + '.yaml')
-  config = File.exists?(config_name) ? YAML.load(IO.read(config_name)) : nil
-
+  config = load_config_file(name, slot)
   pkgbuild,gem_path,bin_filename = generate_pkgbuild(name, slot, existing_pkg, config)
   Dir.chdir(work_dir) {
     IO.write('PKGBUILD', pkgbuild)
