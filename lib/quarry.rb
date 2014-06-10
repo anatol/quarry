@@ -12,7 +12,7 @@ require 'rubygems/remote_fetcher'
 GEM_SOURCE = Gem::Source.new(Gem.default_sources[0])
 QUARRY_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 INDEX_DIR = File.join(QUARRY_DIR, 'index')  # it is where we keep binary packages
-REPO_DB_FILE = File.join(INDEX_DIR, 'repo.db.tar.xz')
+REPO_DB_FILE = File.join(INDEX_DIR, 'quarry.db.tar.xz')
 CONFIG_PKG_DIR = File.join(QUARRY_DIR, 'config.pkg')
 WORK_DIR = File.join(QUARRY_DIR, 'work')
 WORK_REPO_DIR = File.join(WORK_DIR, 'repo')
@@ -420,7 +420,7 @@ def build_packages(packages_to_generate, existing_packages)
 end
 
 def rsync
-  `rsync -avz --exclude repo.db.tar.xz.old #{INDEX_DIR}/* celestia:packages/quarry/x86_64/`
+  `rsync -avz --exclude quarry.db.tar.xz.old #{INDEX_DIR}/* celestia:packages/quarry/x86_64/`
 end
 
 init()
