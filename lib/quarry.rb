@@ -419,6 +419,10 @@ def build_packages(packages_to_generate, existing_packages)
   end
 end
 
+def rsync
+  `rsync -avz --exclude repo.db.tar.xz.old #{INDEX_DIR}/* celestia:packages/quarry/x86_64/`
+end
+
 init()
 
 existing_packages = load_arch_packages()
@@ -432,3 +436,5 @@ packages_to_generate = whitelist_packages - existing_packages.keys + outdated_pa
 packages_to_generate.uniq!
 
 build_packages(packages_to_generate, existing_packages)
+
+rsync
