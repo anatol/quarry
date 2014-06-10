@@ -17,6 +17,10 @@ CONFIG_PKG_DIR = File.join(QUARRY_DIR, 'config.pkg')
 WORK_DIR = File.join(QUARRY_DIR, 'work')
 WORK_REPO_DIR = File.join(WORK_DIR, 'repo')
 WORK_BUILD_DIR = File.join(WORK_DIR, 'build')
+CHROOT_DIR = File.join(WORK_DIR, 'chroot')
+CHROOT_ROOT_DIR = File.join(CHROOT_DIR, 'root')
+CHROOT_QUARRY_PATH = '/var/quarry-repo' # path to quarry repository inside the chroot
+CHROOT_QUARRY_FULL_PATH = File.join(CHROOT_ROOT_DIR, CHROOT_QUARRY_PATH)
 
 # TODO: choose other directory to avoid file conflicts?
 GEM_DIR = Gem.default_dir
@@ -38,20 +42,25 @@ url=<%= website %>
 license=(<%= license %>)
 depends=(<%= depends %>)
 options=(!emptydirs)
-source=(https://rubygems.org/downloads/$_gemname-$pkgver.gem)
+source=(https://rubygems.org/downloads/$_gemname-$pkgver.gem
+    <%= patch_sha ? 'patch' : '' %>
+)
 noextract=($_gemname-$pkgver.gem)
-sha1sums=('<%= sha1sum %>')
+sha1sums=('<%= sha1sum %>'
+    <%= patch_sha ? patch_sha : '' %>
+)
 
 prepare() {
-  if [ -f '<%= CONFIG_PKG_DIR %>'/$_gemname.patch ]; then
-    rm -rf $_gemname-$pkgver
+  <% if patch_sha then %>
     gem unpack $_gemname-$pkgver.gem
     cd $_gemname-$pkgver
-    patch -p1 < '<%= CONFIG_PKG_DIR %>'/$_gemname.patch
+    patch -p1 < ../patch
     gem build $_gemname.gemspec
     mv $_gemname-$pkgver.gem ..
     cd ..
-  fi
+  <% end %>
+
+  true
 }
 
 package() {
@@ -100,7 +109,6 @@ end
 def load_arch_packages
   return {} unless File.exists?(REPO_DB_FILE)
 
-  FileUtils.mkpath(WORK_REPO_DIR)
   `tar xvfJ #{REPO_DB_FILE} -C #{WORK_REPO_DIR}`
 
   result = {} # [name,slot] => [version,pkgver,[depenedncies]]
@@ -217,8 +225,31 @@ def init
   @gems_stable = load_gem_index(:released)
   @gems_beta = load_gem_index(:prerelease)
 
-  FileUtils.rm_rf(WORK_DIR)
   FileUtils.mkdir(INDEX_DIR) unless File.directory?(INDEX_DIR)
+
+  FileUtils.rm_rf(WORK_REPO_DIR)
+
+  FileUtils.mkpath(WORK_DIR)
+  FileUtils.mkpath(WORK_REPO_DIR)
+  FileUtils.mkpath(CHROOT_DIR)
+
+  unless File.exists?(CHROOT_ROOT_DIR)
+    user = ENV['USER']
+
+    # Remove possible cache files left from previous build
+    `sudo rm /var/cache/pacman/pkg/ruby-*`
+
+    `mkarchroot -C /usr/share/devtools/pacman-extra.conf -M /usr/share/devtools/makepkg-x86_64.conf #{CHROOT_ROOT_DIR} base-devel ruby`
+    pacman_conf = File.join(CHROOT_ROOT_DIR, 'etc', 'pacman.conf')
+    `sudo sh -c 'chmod o+w #{pacman_conf}; mkdir -p #{CHROOT_QUARRY_FULL_PATH}; chown #{user} #{CHROOT_QUARRY_FULL_PATH}; chmod a+rx #{CHROOT_QUARRY_FULL_PATH}'`
+
+    open(pacman_conf, 'a') { |f|
+      f.puts '[quarry]'
+      f.puts "Server = file://#{CHROOT_QUARRY_PATH}"
+    }
+
+    sync_chroot_repo
+  end
 end
 
 def out_of_date_packages(existing_packages)
@@ -323,6 +354,9 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   # Also remove binaries for conflicting gems.
   remove_binaries = ((not slot.nil? or CONFLICTING_GEMS.include?(name)) and not spec.executables.empty?)
 
+  patch_file = check_pkg_file(name, slot, 'patch')
+  patch_sha = Digest::SHA1.file(patch_file).hexdigest if patch_file
+
   # TOTHINK: install binaries into directory other than /usr/bin?
   params = {
     gem_name: name,
@@ -339,7 +373,8 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
     required_dirs: required_dirs,
     remove_binaries: remove_binaries,
     gem_dir: GEM_DIR,
-    gem_extension_dir: GEM_EXTENSION_DIR
+    gem_extension_dir: GEM_EXTENSION_DIR,
+    patch_sha: patch_sha
   }
   content = Erubis::Eruby.new(PKGBUILD).result(params)
 
@@ -359,20 +394,31 @@ def slot_ledder(slot)
   return result
 end
 
-def load_config_file(name, slot)
+def check_pkg_file(name, slot, ext)
   slot_ledder(slot).each do |s|
-    config_name = File.join(CONFIG_PKG_DIR, name + '-' + s + '.yaml')
-    return YAML.load(IO.read(config_name)) if File.exists?(config_name)
+    config_name = File.join(CONFIG_PKG_DIR, name + '-' + s + '.' + ext)
+    return config_name if File.exists?(config_name)
   end
-  config_name = File.join(CONFIG_PKG_DIR, name + '.yaml')
-  return YAML.load(IO.read(config_name)) if File.exists?(config_name)
+  config_name = File.join(CONFIG_PKG_DIR, name + '.' + ext)
+  return config_name if File.exists?(config_name)
   return nil
+end
+
+def load_config_file(name, slot)
+  config_name = check_pkg_file(name, slot, 'yaml')
+  config_name ? YAML.load(IO.read(config_name)) : nil
+end
+
+def sync_chroot_repo
+  copy_repo_to(CHROOT_QUARRY_FULL_PATH)
+  `sudo arch-chroot #{CHROOT_ROOT_DIR} pacman -Sy`
 end
 
 # generates PKGBUILD, builds binary package for it, copies to index directory and adds it to the Arch repository
 def build_package(name, slot, existing_pkg)
   arch_name = pkg_to_arch(name, slot)
   work_dir = File.join(WORK_BUILD_DIR, arch_name)
+  FileUtils.rm_rf(work_dir)
   FileUtils.mkpath(work_dir)
 
   config = load_config_file(name, slot)
@@ -380,8 +426,12 @@ def build_package(name, slot, existing_pkg)
   Dir.chdir(work_dir) {
     IO.write('PKGBUILD', pkgbuild)
     FileUtils.cp(gem_path, '.')
-    `makepkg --install --noconfirm --sign`
+    patch_file = check_pkg_file(name, slot, 'patch')
+    FileUtils.cp(patch_file, 'patch') if patch_file
+
+    system "makechrootpkg -c -r #{CHROOT_DIR}"
     fail("The binary package was not built: #{bin_filename}") unless File.exists?(bin_filename)
+    `gpg -q -b #{bin_filename}`
     FileUtils.mv(bin_filename, INDEX_DIR)
     FileUtils.mv(bin_filename + '.sig', INDEX_DIR)
   }
@@ -390,6 +440,8 @@ def build_package(name, slot, existing_pkg)
 end
 
 def build_packages(packages_to_generate, existing_packages)
+  repo_modified = false
+
   while pkg = packages_to_generate.last do
     version = slot_to_version(*pkg)
     spec = package_spec(pkg[0], version)
@@ -416,11 +468,17 @@ def build_packages(packages_to_generate, existing_packages)
 
     existing_packages[pkg] = {} unless existing_packages[pkg] # create a stub for the existing package
     build_package(*pkg, existing_packages[pkg])
+    repo_modified = true
+
+    # sync to chroot as the next package might require this update
+    sync_chroot_repo
   end
+
+  return repo_modified
 end
 
-def rsync
-  `rsync -avz --exclude quarry.db.tar.xz.old #{INDEX_DIR}/* celestia:packages/quarry/x86_64/`
+def copy_repo_to(dest)
+  `rsync -avz --delete --exclude quarry.db.tar.xz.old #{INDEX_DIR}/ #{dest}`
 end
 
 init()
@@ -435,6 +493,6 @@ packages_to_generate = whitelist_packages - existing_packages.keys + outdated_pa
 
 packages_to_generate.uniq!
 
-build_packages(packages_to_generate, existing_packages)
+repo_modified = build_packages(packages_to_generate, existing_packages)
 
-rsync
+copy_repo_to('celestia:packages/quarry/x86_64/') if repo_modified

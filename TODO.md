@@ -2,5 +2,4 @@
 - [ ] There should be a way for mass rebuilds, e.g. when ruby version has bumbped
 - [ ] Add cleanup for unused slot versions
 - [ ] Add cleanup for old binary packages
-- [ ] Build packages in a clean chroot
 - [ ] Provide both 32 and 64 bit repositories
