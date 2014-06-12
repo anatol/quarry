@@ -217,9 +217,9 @@ end
 def slot_to_version(name, slot)
   index = prerelease_version?(slot) ? @gems_beta : @gems_stable
   versions = index[name]
-  fail("Cannot find gem with name #{name} slot #{slot}") unless versions
+  fail("Cannot find gem name for [#{name},#{slot}]") unless versions
   versions = versions.select{|v| v == slot or v.start_with?(slot + '.')} if slot
-  fail("Cannot find version for gem #{name} slot #{slot}") if versions.empty?
+  fail("Cannot find version for [#{name},#{slot}]") if versions.empty?
   return versions.last
 end
 
