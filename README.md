@@ -24,4 +24,8 @@ Converting a gem into binary Arch package is simple and straighforward for most 
   * **dependencies** - array of additional dependencies. Quarry extracts ruby dependencies from gem specification file, but if you want to add native dependencies you should list it here.
   * **include** - by default Quarry copies only *bin* and *lib* gem directories. If you want to copy other files/directories then add it here.
 
+If slot version has no config then it checks config for less specific slot. E.g. if there was a slot version *rails-3.2.6* then it would check configs for *rails-3.2.6*, *rails-3.2*, *rails-3*, *rails* until it finds an existing file. 
+
 If gem requires patching then you can add $PACKAGE.patch file and it will be applied automatically before installing the gem.
+
+File *rebuild_packages* contains list of gems to force rebuild with new pkgrel. It might be useful if e.g. configuration for the gem has changed.
