@@ -32,6 +32,7 @@ rails,3
 rake
 rb-inotify
 rb-kqueue
+rdiscount
 rmagick
 rspec
 sinatra
