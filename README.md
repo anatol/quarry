@@ -15,7 +15,7 @@ Unlike packages from AUR using the binary repository is better because:
 
 #### Quarry tool internals
 
-Source code is hosted at github https://github.com/anatol/quarry
+Source code is hosted at github https://github.com/anatol/quarry and released under GPL3 license.
 
 Quarry manages gems listed in *whitelist_packages* file plus all dependencies of these packages. If you want to see your package in the binary repo add it to https://github.com/anatol/quarry/blob/master/whitelist_packages
 
