@@ -3,6 +3,7 @@
 require 'digest/sha1'
 require 'erubis'
 require 'shellwords'
+require 'pathname'
 require 'rubygems/name_tuple'
 require 'rubygems/package'
 require 'rubygems/remote_fetcher'
@@ -79,7 +80,10 @@ package() {
     rm -rf "$_extdir"/*
     touch "$_extdir/gem.build_complete"
   fi
-  find "$pkgdir/$_gemdir/gems/$_gemname-$pkgver" -mindepth 1 -maxdepth 1 <%= required_dirs.map{|d| '! -name ' + d}.join(' ') %> -exec rm -r {} \\;
+
+  <% unless delete_dirs.empty? %>
+  rm -rf "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"/{<%= delete_dirs.join(',') %>}
+  <% end %>
 }
 }
 
@@ -313,6 +317,44 @@ def find_license_files(spec)
   return license_files
 end
 
+def calculate_delete_dirs(spec, config)
+  to_delete = [] # dirs/files to delete
+
+  # spec.full_require_paths contains too much garbage
+  required = %w(bin lib)
+  if config and config['include']
+    required += config['include']
+  end
+
+  # find parents for required
+  parents = required.map{ |f|
+    f = '/' + Pathname.new(f).cleanpath.to_path
+    ind = f.rindex('/')
+    f = f[0..ind]
+    f = f[0..-2] # strip last slash
+  }.uniq.sort.reverse  # the most specific directory goes first
+
+  # iterate all existing and if it is in one of the parents - add parent+firstchild to delete
+  for f in spec.files
+    f = '/' + Pathname.new(f).cleanpath.to_path
+
+    # find the fisrt (most specific) parent directory
+    for p in parents
+      if f.start_with?(p)
+        # find first child part inside the parent dir
+        ind = f.index('/', p.size+1)
+        child = ind ? f[0..ind-1] : f
+        child = child[1..-1] # remove leading slash that we added
+        to_delete << child unless required.include?(child)
+        break
+      end
+    end
+  end
+  to_delete.uniq!
+
+  return to_delete
+end
+
 # Returns PKGBUILD content and binary filename to be build
 def generate_pkgbuild(name, slot, existing_pkg, config)
   version = slot_to_version(name, slot)
@@ -345,12 +387,6 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   filename_arch = spec.extensions.empty? ? 'any' : 'x86_64'
   bin_filename = "#{arch_name}-#{version}-#{pkgver}-#{filename_arch}.pkg.tar.xz"
 
-  # spec.full_require_paths contains too much garbage
-  required_dirs = %w(bin lib)
-  if config and config['include']
-    required_dirs += config['include']
-  end
-
   # In case we generate a non-HEAD version of a package, we should clean /usr/bin
   # as it will conflict with a HEAD version of the package
   # Also remove binaries for conflicting gems.
@@ -372,7 +408,7 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
     sha1sum: sha1sum,
     depends: dependencies.join(' '),
     license_files: find_license_files(spec),
-    required_dirs: required_dirs,
+    delete_dirs: calculate_delete_dirs(spec, config),
     remove_binaries: remove_binaries,
     gem_dir: GEM_DIR,
     gem_extension_dir: GEM_EXTENSION_DIR,
