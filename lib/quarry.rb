@@ -21,7 +21,6 @@ WORK_BUILD_DIR = File.join(WORK_DIR, 'build')
 CHROOT_DIR = File.join(WORK_DIR, 'chroot')
 CHROOT_ROOT_DIR = File.join(CHROOT_DIR, 'root')
 CHROOT_QUARRY_PATH = '/var/quarry-repo' # path to quarry repository inside the chroot
-CHROOT_QUARRY_FULL_PATH = File.join(CHROOT_ROOT_DIR, CHROOT_QUARRY_PATH)
 
 # TODO: choose other directory to avoid file conflicts?
 GEM_DIR = Gem.default_dir
@@ -247,7 +246,7 @@ def init
 
     `mkarchroot -C /usr/share/devtools/pacman-extra.conf -M /usr/share/devtools/makepkg-x86_64.conf #{CHROOT_ROOT_DIR} base-devel ruby`
     pacman_conf = File.join(CHROOT_ROOT_DIR, 'etc', 'pacman.conf')
-    `sudo sh -c 'chmod o+w #{pacman_conf}; mkdir -p #{CHROOT_QUARRY_FULL_PATH}; chown #{user} #{CHROOT_QUARRY_FULL_PATH}; chmod a+rx #{CHROOT_QUARRY_FULL_PATH}'`
+    `sudo sh -c 'chmod o+w #{pacman_conf}'`
 
     open(pacman_conf, 'a') { |f|
       f.puts '[quarry]'
@@ -448,8 +447,7 @@ def load_config_file(name, slot)
 end
 
 def sync_chroot_repo
-  copy_repo_to(CHROOT_QUARRY_FULL_PATH)
-  `sudo arch-chroot #{CHROOT_ROOT_DIR} pacman -Sy`
+  `sudo systemd-nspawn -q --bind-ro=#{INDEX_DIR}:#{CHROOT_QUARRY_PATH} -D #{CHROOT_ROOT_DIR} pacman -Sy`
 end
 
 # generates PKGBUILD, builds binary package for it, copies to index directory and adds it to the Arch repository
@@ -467,7 +465,7 @@ def build_package(name, slot, existing_pkg)
     patch_file = check_pkg_file(name, slot, 'patch')
     FileUtils.cp(patch_file, 'patch') if patch_file
 
-    system "makechrootpkg -c -r #{CHROOT_DIR}"
+    system "makechrootpkg -D #{INDEX_DIR}:#{CHROOT_QUARRY_PATH} -c -r #{CHROOT_DIR}"
     fail("The binary package was not built: #{bin_filename}") unless File.exists?(bin_filename)
     `gpg -q -b #{bin_filename}`
     FileUtils.mv(bin_filename, INDEX_DIR)
