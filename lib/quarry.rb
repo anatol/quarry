@@ -320,7 +320,8 @@ def calculate_delete_dirs(spec, config)
   to_delete = [] # dirs/files to delete
 
   # spec.full_require_paths contains too much garbage
-  required = %w(bin lib)
+  required = %w(lib)
+  required << 'bin' unless spec.executables.empty?
   if config and config['include']
     required += config['include']
   end
