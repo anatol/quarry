@@ -1,14 +1,17 @@
 ansi
 archive-tar-minitar
+aruba
 bcrypt
 blankslate
 bluecloth
 bundler
+bunny
 byebug
 capifony
 capistrano
 celluloid
 chef
+chef-server
 chef-zero
 chronic
 coderay
@@ -56,6 +59,7 @@ mongo_ext
 net-ldap
 net-ssh
 nokogiri
+omnibus
 opengl
 origami
 pg
@@ -77,6 +81,7 @@ redis-namespace
 rethinkdb
 rmagick
 rspec
+rubocop
 sinatra
 sqlite3
 tarantool

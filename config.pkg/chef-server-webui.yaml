@@ -1,0 +1,7 @@
+include:
+  - app
+  - config
+  - public
+  - config.ru
+dependencies:
+  - ruby-chef
