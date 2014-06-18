@@ -80,8 +80,8 @@ package() {
     touch "$_extdir/gem.build_complete"
   fi
 
-  <% unless delete_dirs.empty? %>
-  rm -rf "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"/{<%= delete_dirs.join(',') %>}
+  <% if delete_dirs %>
+    rm -rf "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"/<%= delete_dirs %>
   <% end %>
 }
 }
@@ -395,6 +395,14 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   patch_file = check_pkg_file(name, slot, 'patch')
   patch_sha = Digest::SHA1.file(patch_file).hexdigest if patch_file
 
+  delete_dirs = calculate_delete_dirs(spec, config)
+  # unfortunately bash brace extension required at least 2 elements, thus we make a special case for 1-element delete
+  delete_dirs_bash = case delete_dirs.size
+    when 0 then nil
+    when 1 then delete_dirs[0]
+    else '{' + delete_dirs.join(',') + '}'
+  end
+
   # TOTHINK: install binaries into directory other than /usr/bin?
   params = {
     gem_name: name,
@@ -408,7 +416,7 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
     sha1sum: sha1sum,
     depends: dependencies.join(' '),
     license_files: find_license_files(spec),
-    delete_dirs: calculate_delete_dirs(spec, config),
+    delete_dirs: delete_dirs_bash,
     remove_binaries: remove_binaries,
     gem_dir: GEM_DIR,
     gem_extension_dir: GEM_EXTENSION_DIR,
