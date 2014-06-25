@@ -95,6 +95,7 @@ twitter
 tzinfo
 tzinfo-data
 unicorn
+unparser
 webgen
 xmpp4r
 yajl-ruby
