@@ -151,12 +151,19 @@ end
 
 # String => [name, slot]
 def arch_to_pkg(arch_name)
-  if arch_name =~ /^ruby-(.*?)(-([\d\.]+))?$/
-    name = $1
-    slot = $3
-  else
-    fail("Package #{arch_name} in repository does not match a ruby package")
-  end
+  fail("Package name #{arch_name} does not start with ruby- prefix") unless arch_name.start_with?('ruby-')
+  name = arch_name[5..-1]
+  # check if the name itself exists
+  return [name, nil] if @gems_stable[name]
+
+  separator = name.rindex('-')
+  fail("Cannot find gem for arch package #{arch_name}") unless separator
+
+  slot = name[separator+1..-1]
+  name = name[0..separator-1]
+
+  index = prerelease_version?(slot) ? @gems_beta : @gems_stable
+  fail("Cannot find gem with name #{name} for arch package #{arch_name}") unless index[name]
 
   return [name, slot]
 end
@@ -195,6 +202,9 @@ def dependency_to_slot(dep)
 
   required_version = all_versions[required_ind]
   next_version = all_versions[required_ind+1]
+
+  # if found package is beta package then its slot equals to the version
+  return required_version if prerelease_version?(required_version)
 
   # if required version is already the last version, then we don't need a versioned dependency
   return nil unless next_version
