@@ -486,7 +486,7 @@ def build_package(name, slot, existing_pkg)
 
     system "makechrootpkg -D #{INDEX_DIR}:#{CHROOT_QUARRY_PATH} -c -r #{CHROOT_DIR}"
     fail("The binary package was not built: #{bin_filename}") unless File.exists?(bin_filename)
-    `gpg -q -b #{bin_filename}`
+    `gpg --batch -b #{bin_filename}`
     FileUtils.mv(bin_filename, INDEX_DIR)
     FileUtils.mv(bin_filename + '.sig', INDEX_DIR)
   }
