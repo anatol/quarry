@@ -60,6 +60,7 @@ mongo_ext
 net-ldap
 net-ssh
 nokogiri
+octokit
 omnibus
 opengl
 origami
