@@ -12,6 +12,7 @@ capistrano
 celluloid
 chef
 chef-server
+chefspec
 chef-zero
 chronic
 coderay
