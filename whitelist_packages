@@ -58,6 +58,7 @@ liquid
 mail
 mongo
 mongo_ext
+mustache
 net-ldap
 net-ssh
 nokogiri
@@ -83,6 +84,7 @@ redis
 redis-namespace
 rethinkdb
 rmagick
+ronn
 rspec
 rubocop
 sinatra
