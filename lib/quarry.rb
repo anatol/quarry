@@ -135,6 +135,7 @@ def load_arch_packages
     dependencies = dependencies[dependencies.index('%DEPENDS%')+1..-1]
     enddeps = dependencies.index('')
     dependencies = dependencies[0..enddeps-1] if enddeps
+    dependencies.sort!
 
     result[key] = [version, pkgver, dependencies]
   end
@@ -195,9 +196,15 @@ def package_spec(name, version)
 end
 
 def dependency_to_slot(dep)
-  index = dep.prerelease? ? @gems_beta : @gems_stable
+  index = @gems_stable
   all_versions = index[dep.name]
   required_ind = all_versions.rindex{|v| dep.requirement.satisfied_by?(Gem::Version.new(v))}
+  if not required_ind and dep.prerelease?
+    # do the same search but in beta index
+    index = @gems_beta
+    all_versions = index[dep.name]
+    required_ind = all_versions.rindex{|v| dep.requirement.satisfied_by?(Gem::Version.new(v))}
+  end
   fail("Cannot resolve package dependency: #{dep}") unless required_ind
 
   required_version = all_versions[required_ind]
@@ -281,32 +288,21 @@ def out_of_date_packages(existing_packages)
   return result
 end
 
-# Checks existing packages and makes sure that their slot still matches
-# gem requirements.
-# The slot can be out-of-date if dependency requirement has e.g. ~>2.0 while dependency
-# version got bumped to 3.0
-def package_with_changed_dependencies(existing_packages, outdated_packages)
+# Finds all packages that have incorrect/out-of-date dependencies
+# The dependency might be different in case of:
+#   - some dependency has bumped version and does not match gem requirement anymore
+#   - dependencies in config has been changed
+def package_with_changed_dependencies(existing_packages)
   # check if we need to regenerate it in case if versioned deps have changed
   result = []
   for k,v in existing_packages do
-    next if outdated_packages.include?(k) # we generate anyway, no need to check its dependencies
-
-    spec = package_spec(k[0], v[0])
-    changed_deps = []
-    for dependency in spec.runtime_dependencies do
-      s = dependency_to_slot(dependency)
-      d = [dependency.name, s]
-      next unless outdated_packages.include?(d)
-
-      changed_deps << d
-    end
-
-    for d in changed_deps
-      # some of the package dependencies has changed, we need to make sure their slot number is still the same
-      if v[2].include?(d)
-        result << k
-        break
-      end
+    name,slot = *k
+    spec = package_spec(name, v[0])
+    config = load_config_file(name, slot)
+    dependencies = generate_dependency_list(spec, config)
+    if dependencies != v[2]
+      result << k
+      # puts "name=#{name} slot=#{slot} has out-of-date packages: existing=#{v[2]} new=#{dependencies}"
     end
   end
 
@@ -365,6 +361,19 @@ def calculate_delete_dirs(spec, config)
   return to_delete
 end
 
+def generate_dependency_list(spec, config)
+  dependencies = %w(ruby) + spec.runtime_dependencies.map{|d|
+    s = dependency_to_slot(d)
+    pkg_to_arch(d.name, s)
+  }
+
+  if config and config['dependencies']
+    dependencies = config['dependencies'] + dependencies
+  end
+
+  return dependencies.sort.uniq
+end
+
 # Returns PKGBUILD content and binary filename to be build
 def generate_pkgbuild(name, slot, existing_pkg, config)
   version = slot_to_version(name, slot)
@@ -386,13 +395,7 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   sha1sum = Digest::SHA1.file(gem_path).hexdigest
   # TODO: if license is not specified in spec, check HEAD spec, check -beta spec
   licenses = spec.licenses.map{|l| Shellwords.escape(l)}
-  dependencies = %w(ruby) + spec.runtime_dependencies.map{|d|
-    s = dependency_to_slot(d)
-    pkg_to_arch(d.name, s)
-  }
-  if config and config['dependencies']
-    dependencies = config['dependencies'] + dependencies
-  end
+  dependencies = generate_dependency_list(spec, config)
   existing_pkg[2] = dependencies
   filename_arch = spec.extensions.empty? ? 'any' : 'x86_64'
   bin_filename = "#{arch_name}-#{version}-#{pkgver}-#{filename_arch}.pkg.tar.xz"
@@ -541,7 +544,7 @@ init()
 existing_packages = load_arch_packages()
 whitelist_packages = load_packages('whitelist_packages')
 outdated_packages = out_of_date_packages(existing_packages)
-changed_dep_packages = package_with_changed_dependencies(existing_packages, outdated_packages)
+changed_dep_packages = package_with_changed_dependencies(existing_packages)
 force_rebuild_packages = load_packages('rebuild_packages', false)
 
 # check if new packages appeared in the 'whitelist_packages' list
