@@ -1,5 +1,3 @@
-#!/usr/bin/ruby
-
 require 'digest/sha1'
 require 'erubis'
 require 'shellwords'
@@ -108,7 +106,7 @@ def download_gem(spec)
   Gem::RemoteFetcher.fetcher.download(spec, GEM_SOURCE.uri.to_s)
 end
 
-# Load [name,slot] => [version,pkgver,[dependencies]] for current packages in Arch index
+# Load [name,slot] => [version,pkgver,[dependencies],filename] for current packages in Arch index
 def load_arch_packages
   return {} unless File.exists?(REPO_DB_FILE)
 
@@ -120,6 +118,7 @@ def load_arch_packages
     desc = IO.readlines(p + '/desc').map(&:strip)
     arch_name = desc[desc.index('%NAME%')+1]
     arch_version = desc[desc.index('%VERSION%')+1]
+    arch_filename = desc[desc.index('%FILENAME%')+1]
 
     key = arch_to_pkg(arch_name)
     fail("Duplicated package exists: #{arch_name}") if result[key]
@@ -137,7 +136,7 @@ def load_arch_packages
     dependencies = dependencies[0..enddeps-1] if enddeps
     dependencies.sort!
 
-    result[key] = [version, pkgver, dependencies]
+    result[key] = [version, pkgver, dependencies, arch_filename]
   end
 
   return result
@@ -538,20 +537,3 @@ end
 def copy_repo_to(dest)
   `rsync -avz --delete --exclude quarry.db.tar.xz.old #{INDEX_DIR}/ #{dest}`
 end
-
-init()
-
-existing_packages = load_arch_packages()
-whitelist_packages = load_packages('whitelist_packages')
-outdated_packages = out_of_date_packages(existing_packages)
-changed_dep_packages = package_with_changed_dependencies(existing_packages)
-force_rebuild_packages = load_packages('rebuild_packages', false)
-
-# check if new packages appeared in the 'whitelist_packages' list
-packages_to_generate = whitelist_packages - existing_packages.keys + outdated_packages + changed_dep_packages + force_rebuild_packages
-
-packages_to_generate.uniq!
-
-repo_modified = build_packages(packages_to_generate, existing_packages)
-
-copy_repo_to('celestia:packages/quarry/x86_64/') if repo_modified
