@@ -12,6 +12,7 @@ GEM_SOURCE = Gem::Source.new(Gem.default_sources[0])
 QUARRY_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 INDEX_DIR = File.join(QUARRY_DIR, 'index')  # it is where we keep binary packages
 REPO_DB_FILE = File.join(INDEX_DIR, 'quarry.db.tar.xz')
+REPO_FILES_FILE = File.join(INDEX_DIR, 'quarry.files.tar.xz')
 CONFIG_PKG_DIR = File.join(QUARRY_DIR, 'config.pkg')
 WORK_DIR = File.join(QUARRY_DIR, 'work')
 WORK_REPO_DIR = File.join(WORK_DIR, 'repo')
@@ -494,6 +495,7 @@ def build_package(name, slot, existing_pkg)
   }
 
   `repo-add #{REPO_DB_FILE} #{File.join(INDEX_DIR, bin_filename)}`
+  `repo-add --files #{REPO_FILES_FILE} #{File.join(INDEX_DIR, bin_filename)}`
 end
 
 def build_packages(packages_to_generate, existing_packages)
@@ -535,5 +537,5 @@ def build_packages(packages_to_generate, existing_packages)
 end
 
 def copy_repo_to(dest)
-  `rsync -avz --delete --exclude quarry.db.tar.xz.old #{INDEX_DIR}/ #{dest}`
+  `rsync -avz --delete --exclude quarry.db.tar.xz.old --exclude quarry.files.tar.xz.old #{INDEX_DIR}/ #{dest}`
 end
