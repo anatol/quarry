@@ -79,6 +79,7 @@ rack-mount
 rails
 rails,3
 rake
+rb-gsl
 rb-inotify
 rb-kqueue
 rdiscount
