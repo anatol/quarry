@@ -54,6 +54,7 @@ jbuilder
 jekyll
 jira4r
 json
+knife-azure
 knife-ec2
 liquid
 mail
