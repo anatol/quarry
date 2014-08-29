@@ -1,0 +1,3 @@
+optdepends:
+  ruby-rb-gsl: Use GSL to make jekyll fast
+  ruby-rdiscount: Alternative markdown parser
