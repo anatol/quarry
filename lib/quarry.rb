@@ -42,7 +42,7 @@ license=(<%= license %>)
 depends=(<%= depends %>)
 optdepends=(<% for k,v in optdepends -%>
   '<%= k %>: <%= v %>'
-<% end %>
+<% end if optdepends %>
 )
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$_gemname-$pkgver.gem
@@ -420,7 +420,9 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
     else '{' + delete_dirs.join(',') + '}'
   end
 
-  optdepends = config['optdepends'] || {}
+  if config and config['optdepends']
+    optdepends = config['optdepends']
+  end
 
   # TOTHINK: install binaries into directory other than /usr/bin?
   params = {
