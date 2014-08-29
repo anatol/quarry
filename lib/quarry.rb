@@ -40,6 +40,10 @@ arch=(<%= arch %>)
 url=<%= website %>
 license=(<%= license %>)
 depends=(<%= depends %>)
+optdepends=(<% for k,v in optdepends -%>
+  '<%= k %>: <%= v %>'
+<% end %>
+)
 options=(!emptydirs)
 source=(https://rubygems.org/downloads/$_gemname-$pkgver.gem
     <%= patch_sha ? 'patch' : '' %>
@@ -416,6 +420,8 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
     else '{' + delete_dirs.join(',') + '}'
   end
 
+  optdepends = config['optdepends'] || {}
+
   # TOTHINK: install binaries into directory other than /usr/bin?
   params = {
     gem_name: name,
@@ -433,7 +439,8 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
     remove_binaries: remove_binaries,
     gem_dir: GEM_DIR,
     gem_extension_dir: GEM_EXTENSION_DIR,
-    patch_sha: patch_sha
+    patch_sha: patch_sha,
+    optdepends: optdepends
   }
   content = Erubis::Eruby.new(PKGBUILD).result(params)
 
