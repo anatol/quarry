@@ -277,7 +277,7 @@ def init
     user = ENV['USER']
 
     # Remove possible cache files left from previous build
-    `sudo rm /var/cache/pacman/pkg/ruby-*`
+    `sudo rm -f /var/cache/pacman/pkg/ruby-*`
 
     `mkarchroot -C /usr/share/devtools/pacman-extra.conf -M /usr/share/devtools/makepkg-x86_64.conf #{CHROOT_ROOT_DIR} base-devel ruby`
     pacman_conf = File.join(CHROOT_ROOT_DIR, 'etc', 'pacman.conf')
