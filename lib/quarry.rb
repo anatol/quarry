@@ -141,6 +141,12 @@ def load_arch_packages
     dependencies = dependencies[0..enddeps-1] if enddeps
     dependencies.sort!
 
+    # Rubygems likes to yank (delete) published gems.
+    # Let's make sure our package is still valid gem.
+    unless gem_exists(key[0], version)
+      fail("Gem '#{key[0]}' version '#{version}' is present in Arch index but has been yanked from gem repo. Please update the Arch index to match gem repo.")
+    end
+
     result[key] = [version, pkgver, dependencies, arch_filename]
   end
 
@@ -245,6 +251,14 @@ def slot_to_version(name, slot)
   versions = versions.select{|v| v == slot or v.start_with?(slot + '.')} if slot
   fail("Cannot find version for [#{name},#{slot}]") if versions.empty?
   return versions.last
+end
+
+# Checks that given gem [name,version] existst in the gem index
+def gem_exists(name, version)
+  return true if @gems_stable[name] and @gems_stable[name].include?(version)
+  return true if @gems_beta[name] and @gems_beta[name].include?(version)
+
+  return false
 end
 
 def init
