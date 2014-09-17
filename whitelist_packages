@@ -74,6 +74,7 @@ papertrail
 pg
 pry
 puma
+puppetlabs_spec_helper
 pygments.rb
 rack
 rack-cache
