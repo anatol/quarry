@@ -83,9 +83,9 @@ package() {
     touch "$_extdir/gem.build_complete"
   fi
 
-  <% if delete_dirs %>
-    rm -rf "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"/<%= delete_dirs %>
-  <% end %>
+<% if delete_dirs %>
+  rm -rf "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"/<%= delete_dirs %>
+<% end %>
 }
 }
 
