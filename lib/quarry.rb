@@ -345,7 +345,7 @@ def calculate_delete_dirs(spec, config)
 
   # spec.full_require_paths contains too much garbage
   required = %w(lib)
-  required << 'bin' unless spec.executables.empty?
+  required << spec.bindir unless spec.executables.empty?
   if config and config['include']
     required += config['include']
   end
