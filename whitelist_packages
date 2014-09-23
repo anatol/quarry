@@ -108,6 +108,7 @@ tzinfo-data
 unf
 unicorn
 unparser
+watir-webdriver
 webgen
 xmpp4r
 yajl-ruby
