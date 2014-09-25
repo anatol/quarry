@@ -111,6 +111,10 @@ def download_gem(spec)
   Gem::RemoteFetcher.fetcher.download(spec, GEM_SOURCE.uri.to_s)
 end
 
+def version_gt(version1, version2)
+  Gem::Version.new(version1) > Gem::Version.new(version2)
+end
+
 # Load [name,slot] => [version,pkgver,[dependencies],filename] for current packages in Arch index
 def load_arch_packages
   return {} unless File.exists?(REPO_DB_FILE)
@@ -143,7 +147,7 @@ def load_arch_packages
 
     # Rubygems likes to yank (delete) published gems.
     # Let's make sure our package is still valid gem.
-    unless gem_exists(key[0], version)
+    if not gem_exists(key[0], version) and version_gt(version, slot_to_version(*key))
       fail("Gem '#{key[0]}' version '#{version}' is present in Arch index but has been yanked from gem repo. Please update the Arch index to match gem repo.")
     end
 
@@ -175,7 +179,6 @@ def arch_to_pkg(arch_name)
 
   index = prerelease_version?(slot) ? @gems_beta : @gems_stable
   fail("Cannot find gem with name #{name} for arch package #{arch_name}") unless index[name]
-
   return [name, slot]
 end
 
