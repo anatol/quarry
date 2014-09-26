@@ -101,6 +101,7 @@ tarantool-record
 thin
 thor
 tilt
+tmuxinator
 treetop
 twitter
 tzinfo
