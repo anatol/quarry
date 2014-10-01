@@ -22,6 +22,7 @@ Quarry manages gems listed in *whitelist_packages* file plus all dependencies of
 Converting a gem into binary Arch package is simple and straighforward for most gems. Some rubygems need additional configuration. This specific information is stored in *config.pkg/$PACKAGE.yaml* config files. These are YAML files with following fields:
 
   * **dependencies** - array of additional dependencies. Quarry extracts ruby dependencies from gem specification file, but if you want to add native dependencies you should list it here.
+  * **makedepends** - array of additional makedepends.
   * **optdepends** - a map of optional dependencies. It has the same structure as PKGBUILD optdepends field - (dependency, description).
   * **include** - by default Quarry copies only *bin* and *lib* gem directories. If you want to copy other files/directories then add it here.
 
