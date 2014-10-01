@@ -94,6 +94,7 @@ rmagick
 ronn
 rspec
 rubocop
+rugged
 sinatra
 sqlite3
 tarantool

@@ -1,0 +1,4 @@
+dependencies:
+  - libssh2
+makedepends:
+  - cmake
