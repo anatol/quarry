@@ -41,6 +41,7 @@ geoip
 gist
 git
 github_api
+github-linguist
 github-markup
 god
 gpgme
