@@ -3,5 +3,5 @@ include:
   - config
   - public
   - config.ru
-dependencies:
+depends:
   - ruby-chef

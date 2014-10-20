@@ -389,8 +389,8 @@ def generate_dependency_list(spec, config)
     pkg_to_arch(d.name, s)
   }
 
-  if config and config['dependencies']
-    dependencies = config['dependencies'] + dependencies
+  if config and config['depends']
+    dependencies = config['depends'] + dependencies
   end
 
   return dependencies.sort.uniq
