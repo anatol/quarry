@@ -87,6 +87,9 @@ package() {
 <% if delete_dirs %>
   rm -rf "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"/<%= delete_dirs %>
 <% end %>
+<% for from,to in rename %>
+  mv "$pkgdir/usr/bin/<%= from %>" "$pkgdir/usr/bin/<%= to %>"
+<% end if rename %>
 }
 }
 
@@ -440,6 +443,7 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
 
   optdepends = (config and config['optdepends'])
   makedepends = (config and config['makedepends'])
+  rename = (config and config['rename'])
 
   # TOTHINK: install binaries into directory other than /usr/bin?
   params = {
@@ -460,7 +464,8 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
     gem_extension_dir: GEM_EXTENSION_DIR,
     patch_sha: patch_sha,
     makedepends: makedepends,
-    optdepends: optdepends
+    optdepends: optdepends,
+    rename: rename
   }
   content = Erubis::Eruby.new(PKGBUILD).result(params)
 
