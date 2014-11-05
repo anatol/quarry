@@ -21,7 +21,6 @@ coffee-rails
 compass
 curb
 curses
-debugger
 em-handlersocket
 em-http-request
 em-jack
@@ -107,9 +106,9 @@ spring
 sqlite3
 tarantool
 tarantool-record
-therubyracer
 thin
 thor
+thrift
 tilt
 tmuxinator
 treetop
