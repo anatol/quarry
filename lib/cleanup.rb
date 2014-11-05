@@ -31,7 +31,9 @@ unneeded_pkgs = existing_packages.keys - required_pkgs
 unneeded_pkgs.reject!{|p| p[1].nil?}
 
 unless unneeded_pkgs.empty?
-  puts 'repo-remove $repo ' + unneeded_pkgs.map{|p| pkg_to_arch(*p)}.join(' ')
+  unneeded = unneeded_pkgs.map{|p| pkg_to_arch(*p)}.join(' ')
+  puts 'repo-remove quarry.files.tar.xz ' + unneeded
+  puts 'repo-remove quarry.db.tar.xz ' + unneeded
 end
 
 
