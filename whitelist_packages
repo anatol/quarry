@@ -98,6 +98,7 @@ rmagick
 ronn
 rspec
 rubocop
+ruby-elf
 rugged
 sass-rails
 sdoc
