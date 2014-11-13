@@ -1,3 +1,5 @@
 depends:
   - python2
   - python2-pygments
+include:
+  - lexers
