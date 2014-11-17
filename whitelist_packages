@@ -18,6 +18,7 @@ chef-zero
 chronic
 coderay
 coffee-rails
+coffee-rails,4.0
 compass
 curb
 curses
