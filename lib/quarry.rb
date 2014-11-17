@@ -506,7 +506,7 @@ end
 
 # generates PKGBUILD, builds binary package for it, copies to index directory and adds it to the Arch repository
 def build_package(name, slot, existing_pkg)
-  arch_name = pkg_to_arch(name, slot)
+  arch_name = pkg_to_arch(name, slot, false)
   work_dir = File.join(WORK_BUILD_DIR, arch_name)
   FileUtils.rm_rf(work_dir)
   FileUtils.mkpath(work_dir)
