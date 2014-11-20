@@ -1,3 +1,4 @@
-- [ ] There should be a way to force one package rebuild, e.g. when its config is changed maintainer may decide to rebuild package
 - [ ] There should be a way for mass rebuilds, e.g. when ruby version has bumbped
 - [ ] Provide both 32 and 64 bit repositories
+- [ ] Add synonims support, 'foo' might be configured as a name for 'bar' gem
+- [ ] Do not duplicate official gems re-creation, use gems from core/community if they already exist
