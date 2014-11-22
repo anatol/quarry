@@ -101,12 +101,15 @@ ronn
 rspec
 rubocop
 ruby-elf
+ruby-libvirt
 rugged
 sass-rails
 sdoc
 sinatra
 spring
 sqlite3
+systemd
+systemd-journal
 tarantool
 tarantool-record
 thin
