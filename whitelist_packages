@@ -107,6 +107,7 @@ sdoc
 sinatra
 spring
 sqlite3
+systemd_mon
 tarantool
 tarantool-record
 thin
