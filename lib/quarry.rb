@@ -78,6 +78,7 @@ package() {
 <% if remove_binaries %>
   # non-HEAD version should not install any files in /usr/bin
   rm -r "$pkgdir"/usr/bin/
+  rm -r "$pkgdir/$_gemdir/gems/$_gemname-$pkgver/bin"
 <% end %>
   local _extdir="$pkgdir/<%= gem_extension_dir %>/$_gemname-$pkgver"
   if [ -d "$_extdir" ]; then
