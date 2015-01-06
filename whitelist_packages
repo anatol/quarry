@@ -86,7 +86,6 @@ rack
 rack-cache
 rack-mount
 rails
-rails,3
 rake
 rb-gsl
 rb-inotify
