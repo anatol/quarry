@@ -78,7 +78,6 @@ package() {
 <% if remove_binaries %>
   # non-HEAD version should not install any files in /usr/bin
   rm -r "$pkgdir"/usr/bin/
-  rm -r "$pkgdir/$_gemdir/gems/$_gemname-$pkgver/bin"
 <% end %>
   local _extdir="$pkgdir/<%= gem_extension_dir %>/$_gemname-$pkgver"
   if [ -d "$_extdir" ]; then
@@ -427,15 +426,20 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   filename_arch = spec.extensions.empty? ? 'any' : 'x86_64'
   bin_filename = "#{arch_name}-#{version}-#{pkgver}-#{filename_arch}.pkg.tar.xz"
 
-  # In case we generate a non-HEAD version of a package, we should clean /usr/bin
-  # as it will conflict with a HEAD version of the package
-  # Also remove binaries for conflicting gems.
-  remove_binaries = ((not slot.nil? or CONFLICTING_GEMS.include?(name)) and not spec.executables.empty?)
 
   patch_file = check_pkg_file(name, slot, 'patch')
   patch_sha = Digest::SHA1.file(patch_file).hexdigest if patch_file
 
   delete_dirs = calculate_delete_dirs(spec, config)
+
+  # In case we generate a non-HEAD version of a package, we should clean /usr/bin
+  # as it will conflict with a HEAD version of the package
+  # Also remove binaries for conflicting gems.
+  if ((not slot.nil? or CONFLICTING_GEMS.include?(name)) and not spec.executables.empty?)
+    remove_binaries = true
+    delete_dirs << spec.bindir
+  end
+
   # unfortunately bash brace extension required at least 2 elements, thus we make a special case for 1-element delete
   delete_dirs_bash = case delete_dirs.size
     when 0 then nil
