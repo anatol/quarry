@@ -11,6 +11,7 @@ byebug
 capifony
 capistrano
 capistrano-rails
+ceedling
 celluloid
 chef
 chef-server
