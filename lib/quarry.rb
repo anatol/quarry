@@ -532,8 +532,8 @@ def build_package(name, slot, existing_pkg)
     FileUtils.mv(bin_filename + '.sig', INDEX_DIR)
   }
 
-  `repo-add #{REPO_DB_FILE} #{File.join(INDEX_DIR, bin_filename)}`
-  `repo-add --files #{REPO_FILES_FILE} #{File.join(INDEX_DIR, bin_filename)}`
+  `repo-add -v -s #{REPO_DB_FILE} #{File.join(INDEX_DIR, bin_filename)}`
+  `repo-add -v -s --files #{REPO_FILES_FILE} #{File.join(INDEX_DIR, bin_filename)}`
 end
 
 def build_packages(packages_to_generate, existing_packages)
