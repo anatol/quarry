@@ -37,6 +37,7 @@ eventmachine
 excon
 eye
 ffi
+ffi_gen
 fog
 foodcritic
 foreman
