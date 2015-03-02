@@ -216,6 +216,8 @@ end
 def dependency_to_slot(dep)
   index = @gems_stable
   all_versions = index[dep.name]
+  fail("No versions found for gem #{dep.name}") unless all_versions
+
   required_ind = all_versions.rindex{|v| dep.requirement.satisfied_by?(Gem::Version.new(v))}
   if not required_ind and dep.prerelease?
     # do the same search but in beta index
