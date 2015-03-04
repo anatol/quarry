@@ -558,6 +558,13 @@ def build_packages(packages_to_generate, existing_packages)
       end
     end
 
+    # head version should be built before slot version to avoid conflicting files
+    key = [pkg[0],nil]
+    if pkg[1] and packages_to_generate.include?(key)
+      packages_to_generate.delete(key)
+      upfront_deps << key
+    end
+
     unless upfront_deps.empty?
       packages_to_generate += upfront_deps
       next
