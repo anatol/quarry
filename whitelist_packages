@@ -24,6 +24,7 @@ coffee-rails,4.0
 compass
 curb
 curses
+droxi
 em-handlersocket
 em-http-request
 em-jack
