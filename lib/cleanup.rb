@@ -6,7 +6,7 @@ require 'quarry.rb'
 
 def find_all_dependencies(whitelist_pkgs, existing_pkgs)
   # existing_pkgs is just a convenient way to get package dependencies without loading gem index
-  unvisited = whitelist_pkgs.dup
+  unvisited = whitelist_pkgs + existing_pkgs.keys.select{|p| p[1]}
   visited = []
 
   while p = unvisited.pop
