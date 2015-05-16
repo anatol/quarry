@@ -213,17 +213,24 @@ def package_spec(name, version)
   GEM_SOURCE.fetch_spec(Gem::NameTuple.new(name, version))
 end
 
+def matches_ruby(name, version)
+  spec = package_spec(name, version)
+  rrv = spec.required_ruby_version
+  return false unless rrv
+  return rrv.satisfied_by? Gem.ruby_version
+end
+
 def dependency_to_slot(dep)
   index = @gems_stable
   all_versions = index[dep.name]
   fail("No versions found for gem #{dep.name}") unless all_versions
 
-  required_ind = all_versions.rindex{|v| dep.requirement.satisfied_by?(Gem::Version.new(v))}
+  required_ind = all_versions.rindex{|v| dep.requirement.satisfied_by?(Gem::Version.new(v)) and matches_ruby(dep.name, v)}
   if not required_ind and dep.prerelease?
     # do the same search but in beta index
     index = @gems_beta
     all_versions = index[dep.name]
-    required_ind = all_versions.rindex{|v| dep.requirement.satisfied_by?(Gem::Version.new(v))}
+    required_ind = all_versions.rindex{|v| dep.requirement.satisfied_by?(Gem::Version.new(v)) and matches_ruby(dep.name, v)}
   end
   fail("Cannot resolve package dependency: #{dep}") unless required_ind
 
@@ -260,7 +267,12 @@ def slot_to_version(name, slot)
   fail("Cannot find gem name for [#{name},#{slot}]") unless versions
   versions = versions.select{|v| v == slot or v.start_with?(slot + '.')} if slot
   fail("Cannot find version for [#{name},#{slot}]") if versions.empty?
-  return versions.last
+
+  for version in versions.reverse
+    next unless matches_ruby(name, version)
+    return version
+  end
+  fail("Cannot find version for [#{name},#{slot}] that match current ruby version")
 end
 
 # Checks that given gem [name,version] existst in the gem index
