@@ -2,6 +2,7 @@ ansi
 archive-tar-minitar
 aruba
 bcrypt
+bigdecimal
 blankslate
 bluecloth
 bropages
@@ -60,6 +61,7 @@ hike
 hiredis
 hoe
 i18n
+io-console
 ipaddress
 jbuilder
 jekyll
@@ -83,7 +85,9 @@ opengl
 origami
 papertrail
 pg
+power_assert
 pry
+psych
 puma
 puppetlabs_spec_helper
 pygments.rb
@@ -115,6 +119,7 @@ systemd-journal
 systemd_mon
 tarantool
 tarantool-record
+test-unit
 thin
 thor
 thrift
