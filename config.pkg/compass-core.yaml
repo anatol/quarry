@@ -1,2 +1,5 @@
 include:
   - VERSION
+  - data
+  - stylesheets
+  - templates
