@@ -6,13 +6,20 @@ require 'quarry.rb'
 
 def find_all_dependencies(whitelist_pkgs, existing_pkgs)
   # existing_pkgs is just a convenient way to get package dependencies without loading gem index
-  unvisited = whitelist_pkgs + existing_pkgs.keys.select{|p| p[1]}
+
+  # start with whitelist and HEAD existing packages
+  unvisited = whitelist_pkgs + existing_pkgs.keys.select{|p| p[1].nil?}
   visited = []
 
   while p = unvisited.pop
     next if visited.include?(p)
-
     visited << p
+
+    unless existing_pkgs[p]
+      puts "Missing dependency #{p}"
+      next
+    end
+
     arch_deps = existing_pkgs[p][2].select{|n| n.start_with?('ruby-')}.map{|n| arch_to_pkg(n)}
     unvisited += arch_deps
   end
@@ -23,6 +30,7 @@ end
 init()
 existing_packages = load_arch_packages()
 whitelist_packages = load_packages('whitelist_packages')
+
 
 # 1. Find packages that are not needed for whitelist
 required_pkgs = find_all_dependencies(whitelist_packages, existing_packages)
