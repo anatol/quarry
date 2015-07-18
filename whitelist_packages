@@ -113,6 +113,7 @@ spring
 sqlite3
 systemd-journal
 systemd_mon
+taglib-ruby
 tarantool
 tarantool-record
 thin
