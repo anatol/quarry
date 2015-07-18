@@ -1,0 +1,15 @@
+optdepends:
+  ruby-sqlite3: database for Active Record
+  ruby-sass-rails: SCSS for stylesheets
+  ruby-uglifier: compressor for JavaScript assets
+  ruby-coffee-rails: CoffeeScript for .coffee assets and views
+  ruby-jquery-rails: jquery as the JavaScript library
+  ruby-turbolinks: makes following links in your web application faster
+  ruby-jbuilder: Build JSON APIs with ease
+  ruby-sdoc: bundle exec rake doc:rails generates the API under doc/api
+  ruby-bcrypt: Use ActiveModel has_secure_password
+  ruby-unicorn: app server for rails applications
+  ruby-capistrano-rails: Capistrano support for rails applications
+  ruby-byebug: live debugger for rails apps
+  ruby-web-console: Access an IRB console on exception pages
+  ruby-spring: speeds up development by keeping your application running in the background
