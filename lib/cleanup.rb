@@ -40,8 +40,8 @@ unneeded_pkgs.reject!{|p| p[1].nil?}
 
 unless unneeded_pkgs.empty?
   unneeded = unneeded_pkgs.map{|p| pkg_to_arch(*p)}.join(' ')
-  puts 'repo-remove quarry.files.tar.xz ' + unneeded
-  puts 'repo-remove quarry.db.tar.xz ' + unneeded
+  puts ' repo-remove quarry.files.tar.xz ' + unneeded
+  puts ' repo-remove quarry.db.tar.xz ' + unneeded
 end
 
 
@@ -50,5 +50,5 @@ all_files = existing_packages.values.map{|v| [v[3], v[3]+'.sig']}.flatten
 Dir[INDEX_DIR + '/*.pkg.tar.xz{,.sig}'].sort.each {|f|
   name = File.basename(f)
 
-  puts "rm #{name}" unless all_files.include?(name)
+  puts " rm #{name}" unless all_files.include?(name)
 }
