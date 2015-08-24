@@ -102,6 +102,7 @@ redis-namespace
 rethinkdb
 rmagick
 ronn
+rotp
 rspec
 rubocop
 ruby-elf
