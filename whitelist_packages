@@ -118,6 +118,7 @@ systemd_mon
 taglib-ruby
 tarantool
 tarantool-record
+termit
 thin
 thor
 thrift
