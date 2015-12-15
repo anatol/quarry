@@ -70,7 +70,7 @@ prepare() {
 
 package() {
   local _gemdir="<%= gem_dir %>"
-  gem install --ignore-dependencies --no-document --no-user-install -i "$pkgdir/$_gemdir" -n "$pkgdir"/usr/bin $_gemname-$pkgver.gem
+  gem install --ignore-dependencies --no-document --no-user-install -i "$pkgdir/$_gemdir" -n "$pkgdir"/usr/bin $_gemname-$pkgver.gem <%= gem_install_args %>
   rm "$pkgdir/$_gemdir/cache/$_gemname-$pkgver.gem"
 <% for license_file in license_files %>
   install -D -m644 "$pkgdir/$_gemdir/gems/$_gemname-$pkgver/<%= license_file %>" "$pkgdir/usr/share/licenses/$pkgname/<%= license_file %>"
@@ -464,6 +464,7 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   optdepends = (config and config['optdepends'])
   makedepends = (config and config['makedepends'])
   rename = (config and config['rename'])
+  gem_install_args = (config and config['gem_install_args'])
 
   # TOTHINK: install binaries into directory other than /usr/bin?
   params = {
@@ -485,7 +486,8 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
     patch_sha: patch_sha,
     makedepends: makedepends,
     optdepends: optdepends,
-    rename: rename
+    rename: rename,
+    gem_install_args: gem_install_args
   }
   content = Erubis::Eruby.new(PKGBUILD).result(params)
 
