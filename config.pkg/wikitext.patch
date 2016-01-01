@@ -1,0 +1,14 @@
+diff --git a/ext/wikitext/extconf.rb b/ext/wikitext/extconf.rb
+index 959b8dc..3dc8480 100644
+--- a/ext/wikitext/extconf.rb
++++ b/ext/wikitext/extconf.rb
+@@ -28,9 +28,5 @@ def missing item
+   exit 1
+ end
+ 
+-if RUBY_VERSION !~ /\A2\.[012]\./
+-  raise "unsupported Ruby version: #{RUBY_VERSION}"
+-end
+-
+ have_header('ruby.h') or missing 'ruby.h'
+ create_makefile('wikitext')
