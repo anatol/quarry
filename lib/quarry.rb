@@ -26,7 +26,7 @@ GEM_DIR = Gem.default_dir
 GEM_EXTENSION_DIR = File.join(GEM_DIR, 'extensions', Gem::Platform.local.to_s, Gem.extension_api_version)
 
 # gems that conflict with ruby package, 'ruby' already provides it
-CONFLICTING_GEMS = %w(rake rdoc)
+CONFLICTING_GEMS = %w(rake rdoc minitest)
 
 
 PKGBUILD = %{# Maintainer: Ruby quarry (https://github.com/anatol/quarry)
@@ -402,10 +402,13 @@ def calculate_delete_dirs(spec, config)
 end
 
 def generate_dependency_list(spec, config)
-  dependencies = %w(ruby) + spec.runtime_dependencies.map{|d|
-    s = dependency_to_slot(d)
-    pkg_to_arch(d.name, s)
-  }
+  dependencies = %w(ruby) +
+    spec.runtime_dependencies
+        .reject{|d| CONFLICTING_GEMS.include?(d.name)}
+        .map{|d|
+      s = dependency_to_slot(d)
+      pkg_to_arch(d.name, s)
+    }
 
   if config and config['depends']
     dependencies = config['depends'] + dependencies
