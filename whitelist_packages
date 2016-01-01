@@ -140,6 +140,7 @@ unicorn
 unparser
 watir-webdriver
 web-console
+web-console,2
 webgen
 wikitext
 xmpp4r
