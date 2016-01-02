@@ -26,7 +26,7 @@ GEM_DIR = Gem.default_dir
 GEM_EXTENSION_DIR = File.join(GEM_DIR, 'extensions', Gem::Platform.local.to_s, Gem.extension_api_version)
 
 # gems that conflict with ruby package, 'ruby' already provides it
-CONFLICTING_GEMS = %w(rake rdoc minitest)
+CONFLICTING_GEMS = %w(rake rdoc minitest net-telnet)
 
 
 PKGBUILD = %{# Maintainer: Ruby quarry (https://github.com/anatol/quarry)
