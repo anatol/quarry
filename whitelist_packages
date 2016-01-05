@@ -121,6 +121,7 @@ systemd-journal
 systemd_mon
 taglib-ruby
 tarantool
+tarantool16
 tarantool-record
 termit
 thin
