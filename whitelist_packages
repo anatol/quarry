@@ -37,6 +37,7 @@ erubis
 eventmachine
 excon
 eye
+fake_ftp
 ffi
 ffi_gen
 fog
@@ -56,6 +57,7 @@ github-markup
 god
 gpgme
 guard
+hashicorp-checkpoint
 hashie
 heroku
 hike
@@ -141,9 +143,12 @@ unf
 unicorn
 unparser
 watir-webdriver
+wdm
 web-console
 web-console,2
 webgen
+webmock
 wikitext
+winrm-fs
 xmpp4r
 yajl-ruby
