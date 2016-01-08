@@ -143,6 +143,7 @@ uglifier
 unf
 unicorn
 unparser
+vagrant-unbundled
 watir-webdriver
 wdm
 web-console

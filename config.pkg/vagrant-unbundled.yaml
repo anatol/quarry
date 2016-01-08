@@ -1,0 +1,5 @@
+include:
+ - version.txt
+ - plugins
+ - templates
+ - keys
