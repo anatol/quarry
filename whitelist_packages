@@ -112,6 +112,7 @@ rmagick
 ronn
 rotp
 rspec
+rspec-rails
 rubocop
 ruby-elf
 rugged
