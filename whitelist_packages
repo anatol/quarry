@@ -8,9 +8,11 @@ bropages
 bundler
 bunny
 byebug
+cancancan
 capifony
 capistrano
 capistrano-rails
+capybara
 ceedling
 celluloid
 chef
@@ -24,6 +26,7 @@ coffee-rails,4.0
 compass
 curb
 curses
+delayed_job
 droxi
 em-handlersocket
 em-http-request
@@ -75,6 +78,8 @@ knife-azure
 knife-ec2
 liquid
 log4r
+lotus-model
+lotusrb
 mail
 mina
 moneta
@@ -88,11 +93,14 @@ octokit
 omnibus
 opengl
 origami
+padrino
 papertrail
+passenger
 pastel
 pg
 pry
 puma
+pundit
 puppetlabs_spec_helper
 pygments.rb
 rack
@@ -107,6 +115,7 @@ rdiscount
 RedCloth
 redis
 redis-namespace
+resque
 rethinkdb
 rmagick
 ronn
@@ -118,6 +127,8 @@ ruby-elf
 rugged
 sass-rails
 sdoc
+sequel
+sidekiq
 sinatra
 spring
 sqlite3
@@ -145,6 +156,7 @@ unf
 unicorn
 unparser
 vagrant-unbundled
+volt
 watir-webdriver
 wdm
 web-console
