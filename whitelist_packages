@@ -76,6 +76,7 @@ jquery-rails
 json
 knife-azure
 knife-ec2
+kramdown-rfc2629
 liquid
 log4r
 lotus-model
