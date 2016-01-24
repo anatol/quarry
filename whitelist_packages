@@ -60,6 +60,8 @@ github-markup
 god
 gpgme
 guard
+hanami
+hanami-model
 hashicorp-checkpoint
 hashie
 heroku
@@ -79,8 +81,6 @@ knife-ec2
 kramdown-rfc2629
 liquid
 log4r
-lotus-model
-lotusrb
 mail
 mina
 moneta
