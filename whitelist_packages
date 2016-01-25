@@ -58,6 +58,7 @@ github_api
 github-linguist
 github-markup
 god
+gollum
 gpgme
 guard
 hanami
