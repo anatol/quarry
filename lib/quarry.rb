@@ -561,7 +561,6 @@ def build_package(name, slot, existing_pkg)
   }
 
   `repo-add -s #{REPO_DB_FILE} #{File.join(INDEX_DIR, bin_filename)}`
-  `repo-add -s --files #{REPO_FILES_FILE} #{File.join(INDEX_DIR, bin_filename)}`
 end
 
 def build_packages(packages_to_generate, existing_packages)
