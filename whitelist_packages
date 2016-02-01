@@ -23,6 +23,7 @@ chronic
 coderay
 coffee-rails
 coffee-rails,4.0
+colorator
 compass
 curb
 curses
@@ -83,6 +84,7 @@ kramdown-rfc2629
 liquid
 log4r
 mail
+mercenary
 mina
 moneta
 mongo
@@ -92,6 +94,10 @@ net-ldap
 net-ssh
 nokogiri
 octokit
+octopress
+octopress-escape-code
+octopress-deploy
+octopress-hooks
 omnibus
 opengl
 origami
@@ -114,6 +120,7 @@ rb-gsl
 rb-inotify
 rb-kqueue
 rdiscount
+redcarpet
 RedCloth
 redis
 redis-namespace
@@ -145,6 +152,7 @@ thin
 thor
 thrift
 tilt
+titlecase
 tmuxinator
 travis
 treetop
