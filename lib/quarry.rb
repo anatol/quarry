@@ -147,7 +147,13 @@ def load_arch_packages
       fail("Package #{arch_name} in repository has incorrect version: #{arch_version}")
     end
 
-    dependencies = IO.readlines(p + '/depends').map(&:strip)
+    if File.exists?(p + '/depends') then
+      dependencies = IO.readlines(p + '/depends').map(&:strip)
+    else
+      # since pacman 5.0 dependencies merged with 'desc' file
+      dependencies = desc
+    end
+
     dependencies = dependencies[dependencies.index('%DEPENDS%')+1..-1]
     enddeps = dependencies.index('')
     dependencies = dependencies[0..enddeps-1] if enddeps
