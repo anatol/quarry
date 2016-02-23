@@ -137,6 +137,7 @@ spring
 sqlite3
 systemd-journal
 systemd_mon
+t
 taglib-ruby
 tarantool
 tarantool16
