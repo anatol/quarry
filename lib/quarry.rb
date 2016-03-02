@@ -12,7 +12,6 @@ GEM_SOURCE = Gem::Source.new(Gem.default_sources[0])
 QUARRY_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 INDEX_DIR = File.join(QUARRY_DIR, 'index')  # it is where we keep binary packages
 REPO_DB_FILE = File.join(INDEX_DIR, 'quarry.db.tar.xz')
-REPO_FILES_FILE = File.join(INDEX_DIR, 'quarry.files.tar.xz')
 CONFIG_PKG_DIR = File.join(QUARRY_DIR, 'config.pkg')
 WORK_DIR = File.join(QUARRY_DIR, 'work')
 WORK_REPO_DIR = File.join(WORK_DIR, 'repo')

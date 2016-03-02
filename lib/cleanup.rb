@@ -40,7 +40,6 @@ unneeded_pkgs.reject!{|p| p[1].nil?}
 
 unless unneeded_pkgs.empty?
   unneeded = unneeded_pkgs.map{|p| pkg_to_arch(*p)}.join(' ')
-  puts ' repo-remove -s quarry.files.tar.xz ' + unneeded
   puts ' repo-remove -s quarry.db.tar.xz ' + unneeded
 end
 
