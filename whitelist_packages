@@ -70,6 +70,7 @@ hike
 hiredis
 hoe
 homesick
+html-proofer
 i18n
 ipaddress
 jbuilder
@@ -171,4 +172,3 @@ wikitext
 winrm-fs
 xmpp4r
 yajl-ruby
-html-proofer
