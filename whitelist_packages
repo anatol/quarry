@@ -127,6 +127,7 @@ rotp
 rspec
 rspec-rails
 rubocop
+ruby-debug-ide
 ruby-elf
 rugged
 sass-rails
