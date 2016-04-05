@@ -125,6 +125,7 @@ rmagick
 ronn
 rotp
 rspec
+rspec-puppet-facts
 rspec-rails
 rubocop
 ruby-debug-ide
