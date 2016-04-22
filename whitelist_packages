@@ -26,6 +26,7 @@ coffee-rails,4.0
 compass
 curb
 curses
+dashing
 delayed_job
 droxi
 em-handlersocket
@@ -71,8 +72,8 @@ hike
 hiredis
 hoe
 homesick
-html-proofer
 hookup
+html-proofer
 i18n
 ipaddress
 jbuilder
