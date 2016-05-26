@@ -62,6 +62,7 @@ github-markup
 god
 gollum
 gpgme
+gtk3
 guard
 hanami
 hanami-model
