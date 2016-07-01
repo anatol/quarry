@@ -1,5 +1,4 @@
 optdepends:
-  ruby-spring-watcher-listen: faster Application reload
   ruby-sqlite3: database for Active Record
   ruby-sass-rails: SCSS for stylesheets
   ruby-uglifier: compressor for JavaScript assets

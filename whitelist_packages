@@ -1,3 +1,4 @@
+spring-watcher-listen
 ansi
 archive-tar-minitar
 aruba
@@ -115,6 +116,7 @@ rack
 rack-cache
 rack-mount
 rails
+rails,4
 rake
 rb-gsl
 rb-inotify
