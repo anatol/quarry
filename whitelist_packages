@@ -53,6 +53,8 @@ fpm
 friends
 fusefs
 geoip
+gir_ffi
+gir_ffi-gtk
 gist
 git
 github
