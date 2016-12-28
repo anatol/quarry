@@ -1,0 +1,4 @@
+makedepends:
+  - ruby-bundler
+  - ruby-rspec
+  - git
