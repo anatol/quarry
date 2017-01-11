@@ -81,11 +81,6 @@ package() {
   # non-HEAD version should not install any files in /usr/bin
   rm -r "$pkgdir"/usr/bin/
 <% end %>
-  local _extdir="$pkgdir/<%= gem_extension_dir %>/$_gemname-$pkgver"
-  if [ -d "$_extdir" ]; then
-    rm -rf "$_extdir"/*
-    touch "$_extdir/gem.build_complete"
-  fi
 
 <% if delete_dirs %>
   rm -rf "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"/<%= delete_dirs %>
@@ -93,6 +88,10 @@ package() {
 <% for from,to in rename %>
   mv "$pkgdir/usr/bin/<%= from %>" "$pkgdir/usr/bin/<%= to %>"
 <% end if rename %>
+<% if contains_extensions %>
+  mkdir -p "$pkgdir/<%= gem_extension_dir %>/$_gemname-$pkgver/"
+  touch "$pkgdir/<%= gem_extension_dir %>/$_gemname-$pkgver/gem.build_complete"
+<% end %>
 }
 }
 
@@ -498,7 +497,8 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
     makedepends: makedepends,
     optdepends: optdepends,
     rename: rename,
-    gem_install_args: gem_install_args
+    gem_install_args: gem_install_args,
+    contains_extensions: !spec.extensions.empty?
   }
   content = Erubis::Eruby.new(PKGBUILD).result(params)
 
