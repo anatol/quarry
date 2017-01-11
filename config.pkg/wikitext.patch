@@ -1,0 +1,23 @@
+From 66b60f13594d8a7127813deb116aea20f5d058d4 Mon Sep 17 00:00:00 2001
+From: Anatol Pomozov <anatol.pomozov@gmail.com>
+Date: Tue, 10 Jan 2017 20:09:26 -0800
+Subject: [PATCH] Remove useless ruby version check
+
+---
+ ext/wikitext/extconf.rb | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/ext/wikitext/extconf.rb b/ext/wikitext/extconf.rb
+index 6eb844e..3dc8480 100644
+--- a/ext/wikitext/extconf.rb
++++ b/ext/wikitext/extconf.rb
+@@ -28,9 +28,5 @@ def missing item
+   exit 1
+ end
+ 
+-if RUBY_VERSION !~ /\A2\.[0123](\.|$)/
+-  raise "unsupported Ruby version: #{RUBY_VERSION}"
+-end
+-
+ have_header('ruby.h') or missing 'ruby.h'
+ create_makefile('wikitext')
