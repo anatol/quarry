@@ -1,11 +1,11 @@
-commit 2bc2e37ac0be6a30bccf90dc944c63f1baa177d3
+commit 0dc168a7adbe098d89513b3bed54d3f28326c261
 Author: Florian Frank <flori@ping.de>
 Date:   Tue Jun 21 12:43:25 2016 +0200
 
     Merge RUBY_INTEGER_UNIFICATION changes
 
 diff --git a/ext/json/ext/generator/generator.c b/ext/json/ext/generator/generator.c
-index ae4593c..6c1d098 100644
+index 6300c64..93236c9 100644
 --- a/ext/json/ext/generator/generator.c
 +++ b/ext/json/ext/generator/generator.c
 @@ -7,7 +7,13 @@ static ID i_encoding, i_encode;
@@ -23,7 +23,7 @@ index ae4593c..6c1d098 100644
               mTrueClass, mFalseClass, mNilClass, eGeneratorError,
               eNestingError, CRegexp_MULTILINE, CJSON_SAFE_STATE_PROTOTYPE,
               i_SAFE_STATE_PROTOTYPE;
-@@ -331,6 +337,18 @@ static VALUE mArray_to_json(int argc, VALUE *argv, VALUE self) {
+@@ -342,6 +348,18 @@ static VALUE mArray_to_json(int argc, VALUE *argv, VALUE self) {
      GENERATE_JSON(array);
  }
  
@@ -42,7 +42,7 @@ index ae4593c..6c1d098 100644
  /*
   * call-seq: to_json(*)
   *
-@@ -350,6 +368,7 @@ static VALUE mBignum_to_json(int argc, VALUE *argv, VALUE self)
+@@ -361,6 +379,7 @@ static VALUE mBignum_to_json(int argc, VALUE *argv, VALUE self)
  {
      GENERATE_JSON(bignum);
  }
@@ -50,7 +50,7 @@ index ae4593c..6c1d098 100644
  
  /*
   * call-seq: to_json(*)
-@@ -796,6 +815,16 @@ static void generate_json_bignum(FBuffer *buffer, VALUE Vstate, JSON_Generator_S
+@@ -825,6 +844,16 @@ static void generate_json_bignum(FBuffer *buffer, VALUE Vstate, JSON_Generator_S
      fbuffer_append_str(buffer, tmp);
  }
  
@@ -67,7 +67,7 @@ index ae4593c..6c1d098 100644
  static void generate_json_float(FBuffer *buffer, VALUE Vstate, JSON_Generator_State *state, VALUE obj)
  {
      double value = RFLOAT_VALUE(obj);
-@@ -829,9 +858,9 @@ static void generate_json(FBuffer *buffer, VALUE Vstate, JSON_Generator_State *s
+@@ -858,9 +887,9 @@ static void generate_json(FBuffer *buffer, VALUE Vstate, JSON_Generator_State *s
          generate_json_false(buffer, Vstate, state, obj);
      } else if (obj == Qtrue) {
          generate_json_true(buffer, Vstate, state, obj);
@@ -79,7 +79,7 @@ index ae4593c..6c1d098 100644
          generate_json_bignum(buffer, Vstate, state, obj);
      } else if (klass == rb_cFloat) {
          generate_json_float(buffer, Vstate, state, obj);
-@@ -1371,10 +1400,15 @@ void Init_generator()
+@@ -1402,10 +1431,15 @@ void Init_generator(void)
      rb_define_method(mHash, "to_json", mHash_to_json, -1);
      mArray = rb_define_module_under(mGeneratorMethods, "Array");
      rb_define_method(mArray, "to_json", mArray_to_json, -1);
@@ -96,10 +96,10 @@ index ae4593c..6c1d098 100644
      rb_define_method(mFloat, "to_json", mFloat_to_json, -1);
      mString = rb_define_module_under(mGeneratorMethods, "String");
 diff --git a/ext/json/ext/generator/generator.h b/ext/json/ext/generator/generator.h
-index b58cc4b..e67cab1 100644
+index 298c0a4..eb4557f 100644
 --- a/ext/json/ext/generator/generator.h
 +++ b/ext/json/ext/generator/generator.h
-@@ -96,8 +96,12 @@ typedef struct JSON_Generator_StateStruct {
+@@ -99,8 +99,12 @@ typedef struct JSON_Generator_StateStruct {
  
  static VALUE mHash_to_json(int argc, VALUE *argv, VALUE self);
  static VALUE mArray_to_json(int argc, VALUE *argv, VALUE self);
@@ -112,7 +112,7 @@ index b58cc4b..e67cab1 100644
  static VALUE mFloat_to_json(int argc, VALUE *argv, VALUE self);
  static VALUE mString_included_s(VALUE self, VALUE modul);
  static VALUE mString_to_json(int argc, VALUE *argv, VALUE self);
-@@ -120,6 +124,9 @@ static void generate_json_string(FBuffer *buffer, VALUE Vstate, JSON_Generator_S
+@@ -122,6 +126,9 @@ static void generate_json_string(FBuffer *buffer, VALUE Vstate, JSON_Generator_S
  static void generate_json_null(FBuffer *buffer, VALUE Vstate, JSON_Generator_State *state, VALUE obj);
  static void generate_json_false(FBuffer *buffer, VALUE Vstate, JSON_Generator_State *state, VALUE obj);
  static void generate_json_true(FBuffer *buffer, VALUE Vstate, JSON_Generator_State *state, VALUE obj);
@@ -123,7 +123,7 @@ index b58cc4b..e67cab1 100644
  static void generate_json_bignum(FBuffer *buffer, VALUE Vstate, JSON_Generator_State *state, VALUE obj);
  static void generate_json_float(FBuffer *buffer, VALUE Vstate, JSON_Generator_State *state, VALUE obj);
 diff --git a/ext/json/ext/parser/parser.c b/ext/json/ext/parser/parser.c
-index df89f2c..afdc0c2 100644
+index 9c9d76a..592e729 100644
 --- a/ext/json/ext/parser/parser.c
 +++ b/ext/json/ext/parser/parser.c
 @@ -3,6 +3,28 @@
@@ -166,7 +166,7 @@ index df89f2c..afdc0c2 100644
  #else
  static ID i_iconv;
  #endif
-@@ -84,7 +104,7 @@ static ID i_json_creatable_p, i_json_create, i_create_id, i_create_additions,
+@@ -84,19 +104,19 @@ static ID i_json_creatable_p, i_json_create, i_create_id, i_create_additions,
            i_match_string, i_aset, i_aref, i_leftshift;
  
  
@@ -175,8 +175,17 @@ index df89f2c..afdc0c2 100644
  
  
  
-@@ -96,7 +116,7 @@ static const int JSON_object_error = 0;
- static const int JSON_object_en_main = 1;
+-#line 92 "parser.c"
+-enum {JSON_object_start = 1};
+-enum {JSON_object_first_final = 27};
+-enum {JSON_object_error = 0};
++#line 112 "parser.c"
++static const int JSON_object_start = 1;
++static const int JSON_object_first_final = 27;
++static const int JSON_object_error = 0;
+ 
+-enum {JSON_object_en_main = 1};
++static const int JSON_object_en_main = 1;
  
  
 -#line 151 "parser.rl"
@@ -264,8 +273,21 @@ index df89f2c..afdc0c2 100644
  
      if (cs >= JSON_object_first_final) {
          if (json->create_additions) {
-@@ -474,7 +494,7 @@ static const int JSON_value_error = 0;
- static const int JSON_value_en_main = 1;
+@@ -466,15 +486,15 @@ case 26:
+ 
+ 
+ 
+-#line 470 "parser.c"
+-enum {JSON_value_start = 1};
+-enum {JSON_value_first_final = 21};
+-enum {JSON_value_error = 0};
++#line 490 "parser.c"
++static const int JSON_value_start = 1;
++static const int JSON_value_first_final = 21;
++static const int JSON_value_error = 0;
+ 
+-enum {JSON_value_en_main = 1};
++static const int JSON_value_en_main = 1;
  
  
 -#line 271 "parser.rl"
@@ -403,8 +425,21 @@ index df89f2c..afdc0c2 100644
  
      if (cs >= JSON_value_first_final) {
          return p;
-@@ -783,7 +803,7 @@ static const int JSON_integer_error = 0;
- static const int JSON_integer_en_main = 1;
+@@ -775,15 +795,15 @@ case 20:
+ }
+ 
+ 
+-#line 779 "parser.c"
+-enum {JSON_integer_start = 1};
+-enum {JSON_integer_first_final = 3};
+-enum {JSON_integer_error = 0};
++#line 799 "parser.c"
++static const int JSON_integer_start = 1;
++static const int JSON_integer_first_final = 3;
++static const int JSON_integer_error = 0;
+ 
+-enum {JSON_integer_en_main = 1};
++static const int JSON_integer_en_main = 1;
  
  
 -#line 295 "parser.rl"
@@ -457,8 +492,21 @@ index df89f2c..afdc0c2 100644
  
      if (cs >= JSON_integer_first_final) {
          long len = p - json->memo;
-@@ -882,7 +902,7 @@ static const int JSON_float_error = 0;
- static const int JSON_float_en_main = 1;
+@@ -874,15 +894,15 @@ case 5:
+ }
+ 
+ 
+-#line 878 "parser.c"
+-enum {JSON_float_start = 1};
+-enum {JSON_float_first_final = 8};
+-enum {JSON_float_error = 0};
++#line 898 "parser.c"
++static const int JSON_float_start = 1;
++static const int JSON_float_first_final = 8;
++static const int JSON_float_error = 0;
+ 
+-enum {JSON_float_en_main = 1};
++static const int JSON_float_en_main = 1;
  
  
 -#line 329 "parser.rl"
@@ -511,8 +559,21 @@ index df89f2c..afdc0c2 100644
  
      if (cs >= JSON_float_first_final) {
          long len = p - json->memo;
-@@ -1048,7 +1068,7 @@ static const int JSON_array_error = 0;
- static const int JSON_array_en_main = 1;
+@@ -1040,15 +1060,15 @@ case 7:
+ 
+ 
+ 
+-#line 1044 "parser.c"
+-enum {JSON_array_start = 1};
+-enum {JSON_array_first_final = 17};
+-enum {JSON_array_error = 0};
++#line 1064 "parser.c"
++static const int JSON_array_start = 1;
++static const int JSON_array_first_final = 17;
++static const int JSON_array_error = 0;
+ 
+-enum {JSON_array_en_main = 1};
++static const int JSON_array_en_main = 1;
  
  
 -#line 381 "parser.rl"
@@ -588,8 +649,21 @@ index df89f2c..afdc0c2 100644
          return NULL;
      }
  }
-@@ -1380,7 +1400,7 @@ static const int JSON_string_error = 0;
- static const int JSON_string_en_main = 1;
+@@ -1372,15 +1392,15 @@ static VALUE json_string_unescape(VALUE result, char *string, char *stringEnd)
+ }
+ 
+ 
+-#line 1376 "parser.c"
+-enum {JSON_string_start = 1};
+-enum {JSON_string_first_final = 8};
+-enum {JSON_string_error = 0};
++#line 1396 "parser.c"
++static const int JSON_string_start = 1;
++static const int JSON_string_first_final = 8;
++static const int JSON_string_error = 0;
+ 
+-enum {JSON_string_en_main = 1};
++static const int JSON_string_en_main = 1;
  
  
 -#line 494 "parser.rl"
@@ -733,8 +807,21 @@ index df89f2c..afdc0c2 100644
      json->len = RSTRING_LEN(source);
      json->source = RSTRING_PTR(source);;
      json->Vsource = source;
-@@ -1737,7 +1764,7 @@ static const int JSON_error = 0;
- static const int JSON_en_main = 1;
+@@ -1729,15 +1756,15 @@ static VALUE cParser_initialize(int argc, VALUE *argv, VALUE self)
+ }
+ 
+ 
+-#line 1733 "parser.c"
+-enum {JSON_start = 1};
+-enum {JSON_first_final = 10};
+-enum {JSON_error = 0};
++#line 1760 "parser.c"
++static const int JSON_start = 1;
++static const int JSON_first_final = 10;
++static const int JSON_error = 0;
+ 
+-enum {JSON_en_main = 1};
++static const int JSON_en_main = 1;
  
  
 -#line 740 "parser.rl"
@@ -789,7 +876,7 @@ index df89f2c..afdc0c2 100644
  	switch( (*p) ) {
  		case 13: goto st10;
  		case 32: goto st10;
-@@ -1891,12 +1918,12 @@ case 9:
+@@ -1891,27 +1918,27 @@ case 9:
  	_out: {}
  	}
  
@@ -804,8 +891,20 @@ index df89f2c..afdc0c2 100644
          return Qnil;
      }
  }
-@@ -1911,7 +1938,7 @@ static const int JSON_quirks_mode_error = 0;
- static const int JSON_quirks_mode_en_main = 1;
+ 
+ 
+ 
+-#line 1907 "parser.c"
+-enum {JSON_quirks_mode_start = 1};
+-enum {JSON_quirks_mode_first_final = 10};
+-enum {JSON_quirks_mode_error = 0};
++#line 1934 "parser.c"
++static const int JSON_quirks_mode_start = 1;
++static const int JSON_quirks_mode_first_final = 10;
++static const int JSON_quirks_mode_error = 0;
+ 
+-enum {JSON_quirks_mode_en_main = 1};
++static const int JSON_quirks_mode_en_main = 1;
  
  
 -#line 778 "parser.rl"
@@ -866,7 +965,7 @@ index df89f2c..afdc0c2 100644
          return Qnil;
      }
  }
-@@ -2182,14 +2209,11 @@ void Init_parser()
+@@ -2194,14 +2221,11 @@ void Init_parser(void)
      i_aref = rb_intern("[]");
      i_leftshift = rb_intern("<<");
  #ifdef HAVE_RUBY_ENCODING_H
@@ -887,7 +986,7 @@ index df89f2c..afdc0c2 100644
      i_iconv = rb_intern("iconv");
  #endif
 diff --git a/ext/json/ext/parser/parser.rl b/ext/json/ext/parser/parser.rl
-index ab8d318..aa295fc 100644
+index 216ad26..2fa0cae 100644
 --- a/ext/json/ext/parser/parser.rl
 +++ b/ext/json/ext/parser/parser.rl
 @@ -1,6 +1,28 @@
@@ -1065,7 +1164,7 @@ index ab8d318..aa295fc 100644
          return Qnil;
      }
  }
-@@ -905,14 +932,11 @@ void Init_parser()
+@@ -917,14 +944,11 @@ void Init_parser(void)
      i_aref = rb_intern("[]");
      i_leftshift = rb_intern("<<");
  #ifdef HAVE_RUBY_ENCODING_H
@@ -1085,30 +1184,3 @@ index ab8d318..aa295fc 100644
  #else
      i_iconv = rb_intern("iconv");
  #endif
-commit 2e2e33b9ebabb9d3ff7d58dffb8c249ca99b3993
-Author: Anatol Pomozov <anatol.pomozov@gmail.com>
-Date:   Tue Jan 10 20:28:45 2017 -0800
-
-    Fix ruby 2.4 compilation error:
-    
-    In file included from generator.c:1:0:
-    ../fbuffer/fbuffer.h: In function 'fbuffer_to_s':
-    ../fbuffer/fbuffer.h:175:47: error: macro "rb_str_new" requires 2 arguments, but only 1 given
-         VALUE result = rb_str_new(FBUFFER_PAIR(fb));
-                                                   ^
-    ../fbuffer/fbuffer.h:175:20: warning: initialization makes integer from pointer without a cast [-Wint-conversion]
-         VALUE result = rb_str_new(FBUFFER_PAIR(fb));
-
-diff --git a/ext/json/ext/fbuffer/fbuffer.h b/ext/json/ext/fbuffer/fbuffer.h
-index af74187..9524fb1 100644
---- a/ext/json/ext/fbuffer/fbuffer.h
-+++ b/ext/json/ext/fbuffer/fbuffer.h
-@@ -172,7 +172,7 @@ static FBuffer *fbuffer_dup(FBuffer *fb)
- 
- static VALUE fbuffer_to_s(FBuffer *fb)
- {
--    VALUE result = rb_str_new(FBUFFER_PAIR(fb));
-+    VALUE result = rb_str_new(FBUFFER_PTR(fb), FBUFFER_LEN(fb));
-     fbuffer_free(fb);
-     FORCE_UTF8(result);
-     return result;
