@@ -20,7 +20,6 @@ CHROOT_DIR = File.join(WORK_DIR, 'chroot')
 CHROOT_ROOT_DIR = File.join(CHROOT_DIR, 'root')
 CHROOT_QUARRY_PATH = '/var/quarry-repo' # path to quarry repository inside the chroot
 
-# TODO: choose other directory to avoid file conflicts?
 GEM_DIR = Gem.default_dir
 GEM_EXTENSION_DIR = File.join(GEM_DIR, 'extensions', Gem::Platform.local.to_s, Gem.extension_api_version)
 
@@ -82,13 +81,18 @@ package() {
   rm -r "$pkgdir"/usr/bin/
 <% end %>
 
-<% if delete_dirs %>
-  rm -rf "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"/<%= delete_dirs %>
-<% end %>
+  # Preserve library and other required directories. Remove junk that gem installs.
+  local _copydir=`mktemp -d -t $_gemname.XXX`
+  chmod 755 $_copydir
+  (cd "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"/ && cp -r --parents <%= preserve_dirs.join(' ') %> $_copydir)
+  rm -rf "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"
+  mv $_copydir "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"
+
 <% for from,to in rename %>
   mv "$pkgdir/usr/bin/<%= from %>" "$pkgdir/usr/bin/<%= to %>"
 <% end if rename %>
 <% if contains_extensions %>
+  rm -rf "$pkgdir/<%= gem_extension_dir %>/$_gemname-$pkgver/"
   mkdir -p "$pkgdir/<%= gem_extension_dir %>/$_gemname-$pkgver/"
   touch "$pkgdir/<%= gem_extension_dir %>/$_gemname-$pkgver/gem.build_complete"
 <% end %>
@@ -369,43 +373,18 @@ def find_license_files(spec)
   return license_files
 end
 
-def calculate_delete_dirs(spec, config)
-  to_delete = [] # dirs/files to delete
-
-  # spec.full_require_paths contains too much garbage
-  required = %w(lib)
-  required << spec.bindir unless spec.executables.empty?
+def calculate_preserved_dirs(spec, config)
+  gem_dir = spec.full_gem_path
+  # full_require_paths contains absolute path like "/usr/lib/ruby/gems/2.4.0/gems/bson_ext-1.12.5/ext/bson_ext"
+  required = spec.full_require_paths.reject{|p| not p.start_with?(gem_dir)}.map{|p| p[gem_dir.length+1..-1]}
   if config and config['include']
+    dup = required & config['include'] # directories come both from gemspec and config
+    puts "Following directories already included by gemspec: #{dup}" unless dup.empty?
+
     required += config['include']
   end
 
-  # find parents for required
-  parents = required.map{ |f|
-    f = '/' + Pathname.new(f).cleanpath.to_path
-    ind = f.rindex('/')
-    f = f[0..ind]
-    f = f[0..-2] # strip last slash
-  }.uniq.sort.reverse  # the most specific directory goes first
-
-  # iterate all existing and if it is in one of the parents - add parent+firstchild to delete
-  for f in spec.files
-    f = '/' + Pathname.new(f).cleanpath.to_path
-
-    # find the fisrt (most specific) parent directory
-    for p in parents
-      if f.start_with?(p)
-        # find first child part inside the parent dir
-        ind = f.index('/', p.size+1)
-        child = ind ? f[0..ind-1] : f
-        child = child[1..-1] # remove leading slash that we added
-        to_delete << child unless required.include?(child)
-        break
-      end
-    end
-  end
-  to_delete.uniq!
-
-  return to_delete
+  return required
 end
 
 def generate_dependency_list(spec, config)
@@ -454,21 +433,17 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   patch_file = check_pkg_file(name, slot, 'patch')
   patch_sha = Digest::SHA1.file(patch_file).hexdigest if patch_file
 
-  delete_dirs = calculate_delete_dirs(spec, config)
+  preserve_dirs = calculate_preserved_dirs(spec, config)
 
   # In case we generate a non-HEAD version of a package, we should clean /usr/bin
   # as it will conflict with a HEAD version of the package
   # Also remove binaries for conflicting gems.
-  if ((not slot.nil? or CONFLICTING_GEMS.include?(name)) and not spec.executables.empty?)
-    remove_binaries = true
-    delete_dirs << spec.bindir
-  end
-
-  # unfortunately bash brace extension required at least 2 elements, thus we make a special case for 1-element delete
-  delete_dirs_bash = case delete_dirs.size
-    when 0 then nil
-    when 1 then delete_dirs[0]
-    else '{' + delete_dirs.join(',') + '}'
+  unless spec.executables.empty?
+    if slot.nil? and not CONFLICTING_GEMS.include?(name)
+      preserve_dirs << spec.bindir
+    else
+      remove_binaries = true
+    end
   end
 
   optdepends = (config and config['optdepends'])
@@ -489,7 +464,7 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
     sha1sum: sha1sum,
     depends: dependencies.join(' '),
     license_files: find_license_files(spec),
-    delete_dirs: delete_dirs_bash,
+    preserve_dirs: preserve_dirs,
     remove_binaries: remove_binaries,
     gem_dir: GEM_DIR,
     gem_extension_dir: GEM_EXTENSION_DIR,
