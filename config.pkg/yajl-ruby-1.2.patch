@@ -1,0 +1,26 @@
+From c96480b3c3915f40e0177ea90e63966d04a79766 Mon Sep 17 00:00:00 2001
+From: SHIBATA Hiroshi <hsbt@ruby-lang.org>
+Date: Wed, 22 Jun 2016 22:10:02 +0800
+Subject: [PATCH] Support to Integer unification for Ruby 2.4.
+ https://bugs.ruby-lang.org/issues/12005
+
+---
+ ext/yajl/yajl_ext.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/ext/yajl/yajl_ext.c b/ext/yajl/yajl_ext.c
+index 2512010..1023e2a 100644
+--- a/ext/yajl/yajl_ext.c
++++ b/ext/yajl/yajl_ext.c
+@@ -878,7 +878,11 @@ static VALUE rb_yajl_json_ext_nil_to_json(int argc, VALUE * argv, VALUE self) {
+ static VALUE rb_yajl_encoder_enable_json_gem_ext(VALUE klass) {
+     rb_define_method(rb_cHash, "to_json", rb_yajl_json_ext_hash_to_json, -1);
+     rb_define_method(rb_cArray, "to_json", rb_yajl_json_ext_array_to_json, -1);
++#ifdef RUBY_INTEGER_UNIFICATION
++    rb_define_method(rb_cInteger, "to_json", rb_yajl_json_ext_fixnum_to_json, -1);
++#else
+     rb_define_method(rb_cFixnum, "to_json", rb_yajl_json_ext_fixnum_to_json, -1);
++#endif
+     rb_define_method(rb_cFloat, "to_json", rb_yajl_json_ext_float_to_json, -1);
+     rb_define_method(rb_cString, "to_json", rb_yajl_json_ext_string_to_json, -1);
+     rb_define_method(rb_cTrueClass, "to_json", rb_yajl_json_ext_true_to_json, -1);
