@@ -11,6 +11,7 @@ better_errors
 binding_of_caller
 blankslate
 bluecloth
+bourbon
 bropages
 bullet
 bundler
@@ -138,6 +139,13 @@ net-ssh
 nokogiri
 octokit
 octopress
+octopress-image-tag
+octopress-codeblock
+octopress-codefence
+octopress-gist
+octopress-quote-tag
+octopress-solarized
+octopress-video-tag
 oj
 omniauth
 omniauth-facebook
@@ -189,6 +197,7 @@ rmagick
 rmmseg-cpp
 ronn
 rotp
+rsense
 rspec
 rspec-html-matchers
 rspec-puppet-facts
