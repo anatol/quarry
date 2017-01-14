@@ -108,6 +108,7 @@ image_optim
 ipaddress
 jbuilder
 jekyll
+jekyll-feed
 jira4r
 jquery-rails
 json
@@ -139,10 +140,10 @@ net-ssh
 nokogiri
 octokit
 octopress
-octopress-image-tag
 octopress-codeblock
 octopress-codefence
 octopress-gist
+octopress-image-tag
 octopress-quote-tag
 octopress-solarized
 octopress-video-tag
