@@ -111,6 +111,7 @@ jekyll
 jekyll-feed
 jira4r
 jquery-rails
+jquery-ui-rails
 json
 knife-azure
 knife-ec2
