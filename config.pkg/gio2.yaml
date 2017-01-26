@@ -1,3 +1,2 @@
 depends:
- - gtk3
  - gobject-introspection
