@@ -377,11 +377,17 @@ def calculate_preserved_dirs(spec, config)
   gem_dir = spec.full_gem_path
   # full_require_paths contains absolute path like "/usr/lib/ruby/gems/2.4.0/gems/bson_ext-1.12.5/ext/bson_ext"
   required = spec.full_require_paths.reject{|p| not p.start_with?(gem_dir)}.map{|p| p[gem_dir.length+1..-1]}
+
   if config and config['include']
     dup = required & config['include'] # directories come both from gemspec and config
     puts "Following directories already included by gemspec: #{dup}" unless dup.empty?
-
     required += config['include']
+  end
+
+  if config and config['exclude']
+    nodir = config['exclude'] - required # directories asked to exclude but do not exist
+    puts "Following directories asked to exlude but they do not exists: #{nodir}" unless nodir.empty?
+    required -= config['exclude']
   end
 
   return required

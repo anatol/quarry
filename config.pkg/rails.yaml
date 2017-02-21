@@ -17,3 +17,6 @@ optdepends:
 
 include:
   - README.md
+
+exclude:
+  - lib

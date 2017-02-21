@@ -25,6 +25,7 @@ Converting a gem into a binary Arch package is simple and straightforward for mo
   * **makedepends** - array of additional makedepends.
   * **optdepends** - a map of optional dependencies. It has the same structure as PKGBUILD optdepends field - (dependency, description).
   * **include** - by default Quarry copies only *bin* and *lib* gem directories. If you want to copy other files/directories then add them here.
+  * **exclude** - exclude the list of directories from the final package. Is useful to exclude default directories such as *lib*. e.g. some gems do not contain directory *lib* despite Rubygem says otherwise. *exclude* property helps Quarry to avoid copying (and failing) such unexistent directories.
   * **rename** - a map of pairs that rename files in /usr/bin/. Most rubygems files are kept in rubygems specific folders under /usr/lib/ruby/gems. But some rubygems create files under /usr/bin and such files can conflict with popular packages. To avoid this we added a mechanism to prevent conflict by renaming files in /usr/bin. This config option is a map of 'from_name: to_name' renames.
   * **gem_install_args** - additional arguments used during the `gem install` step. It can be useful to pass parameters like `--use-system-libraries`
 
