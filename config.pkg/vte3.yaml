@@ -1,2 +1,4 @@
 depends:
  - vte3
+makedepends:
+ - ruby-native-package-installer

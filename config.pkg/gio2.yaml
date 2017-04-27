@@ -1,2 +1,4 @@
 depends:
  - gobject-introspection
+makedepends:
+ - ruby-native-package-installer

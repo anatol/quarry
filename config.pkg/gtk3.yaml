@@ -1,3 +1,5 @@
 depends:
  - gtk3
  - gobject-introspection
+makedepends:
+ - ruby-native-package-installer
