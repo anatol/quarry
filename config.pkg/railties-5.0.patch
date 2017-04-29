@@ -1,0 +1,13 @@
+diff --git a/railties/lib/rails/generators/app_base.rb b/railties/lib/rails/generators/app_base.rb
+index 5f8c33c..0df6857 100644
+--- a/lib/rails/generators/app_base.rb
++++ b/lib/rails/generators/app_base.rb
+@@ -29,7 +29,7 @@ module Rails
+         class_option :skip_gemfile,       type: :boolean, default: false,
+                                           desc: "Don't create a Gemfile"
+ 
+-        class_option :skip_bundle,        type: :boolean, aliases: '-B', default: false,
++        class_option :skip_bundle,        type: :boolean, aliases: '-B', default: true,
+                                           desc: "Don't run bundle install"
+ 
+         class_option :skip_git,           type: :boolean, aliases: '-G', default: false,
