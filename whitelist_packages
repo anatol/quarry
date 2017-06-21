@@ -1,4 +1,3 @@
-cast
 annotate
 ansi
 archive-tar-minitar
@@ -23,6 +22,7 @@ capifony
 capistrano
 capistrano-rails
 capybara
+cast
 ceedling
 celluloid
 certified
@@ -207,6 +207,7 @@ rspec-puppet-facts
 rspec-rails
 rtlit
 rubocop
+ruby-beautify
 ruby-debug-ide
 ruby-elf
 ruby-readability
