@@ -1,0 +1,2 @@
+ignored_packages:
+  - libv8 # https://github.com/cowboyd/libv8/issues/241

@@ -13,6 +13,7 @@ QUARRY_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 INDEX_DIR = File.join(QUARRY_DIR, 'index')  # it is where we keep binary packages
 REPO_DB_FILE = File.join(INDEX_DIR, 'quarry.db.tar.xz')
 CONFIG_PKG_DIR = File.join(QUARRY_DIR, 'config.pkg')
+CONFIG_FILE = File.join(QUARRY_DIR, 'config.yaml')
 WORK_DIR = File.join(QUARRY_DIR, 'work')
 WORK_REPO_DIR = File.join(WORK_DIR, 'repo')
 WORK_BUILD_DIR = File.join(WORK_DIR, 'build')
@@ -294,6 +295,13 @@ def gem_exists(name, version)
   return false
 end
 
+def ignored_packages
+  pkgs = @config['ignored_packages']
+  pkgs = [] if pkgs.nil?
+
+  pkgs.map{|p| [p, nil] }
+end
+
 def init
   @gems_stable = load_gem_index(:released)
   @gems_beta = load_gem_index(:prerelease)
@@ -323,6 +331,8 @@ def init
 
     sync_chroot_repo
   end
+
+  @config = YAML.load(IO.read(CONFIG_FILE))
 end
 
 def out_of_date_packages(existing_packages)
