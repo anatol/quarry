@@ -20,6 +20,7 @@ WORK_BUILD_DIR = File.join(WORK_DIR, 'build')
 CHROOT_DIR = File.join(WORK_DIR, 'chroot')
 CHROOT_ROOT_DIR = File.join(CHROOT_DIR, 'root')
 CHROOT_QUARRY_PATH = '/var/quarry-repo' # path to quarry repository inside the chroot
+ARCHITECTURE = `uname -m`.strip
 
 GEM_DIR = Gem.default_dir
 GEM_EXTENSION_DIR = File.join(GEM_DIR, 'extensions', Gem::Platform.local.to_s, Gem.extension_api_version)
@@ -320,7 +321,7 @@ def init
     # Remove possible cache files left from previous build
     `sudo rm -f /var/cache/pacman/pkg/ruby-*`
 
-    `mkarchroot -C /usr/share/devtools/pacman-extra.conf -M /usr/share/devtools/makepkg-x86_64.conf #{CHROOT_ROOT_DIR} base-devel ruby`
+    `mkarchroot -C /usr/share/devtools/pacman-extra.conf -M /usr/share/devtools/makepkg-#{ARCHITECTURE}.conf #{CHROOT_ROOT_DIR} base-devel ruby`
     pacman_conf = File.join(CHROOT_ROOT_DIR, 'etc', 'pacman.conf')
     `sudo sh -c 'chmod o+w #{pacman_conf}'`
 
@@ -442,7 +443,7 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   licenses = spec.licenses.map{|l| Shellwords.escape(l)}
   dependencies = generate_dependency_list(spec, config)
   existing_pkg[2] = dependencies
-  filename_arch = spec.extensions.empty? ? 'any' : 'x86_64'
+  filename_arch = spec.extensions.empty? ? 'any' : ARCHITECTURE
   bin_filename = "#{arch_name}-#{version}-#{pkgver}-#{filename_arch}.pkg.tar.xz"
 
 
