@@ -1,2 +1,2 @@
 ignored_packages:
-  - libv8 # https://github.com/cowboyd/libv8/issues/241
+  - mini_racer # it depends on beta version of libv8, and libv8 does not build

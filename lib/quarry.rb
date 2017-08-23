@@ -297,7 +297,7 @@ def gem_exists(name, version)
 end
 
 def ignored_packages
-  pkgs = @config['ignored_packages']
+  pkgs = @config['ignored_packages'] if @config
   pkgs = [] if pkgs.nil?
 
   pkgs.map{|p| [p, nil] }
