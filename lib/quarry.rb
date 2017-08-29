@@ -384,6 +384,16 @@ def find_license_files(spec)
   return license_files
 end
 
+# Maps license names from Rubygems to Arch names
+def licenses(spec)
+  spec.licenses.map{|l|
+    case l
+      when 'Apache 2.0' then 'Apache'
+      when 'Apache-2.0' then 'Apache'
+      else l
+    end
+  }
+end
 def calculate_preserved_dirs(spec, config)
   gem_dir = spec.full_gem_path
   # full_require_paths contains absolute path like "/usr/lib/ruby/gems/2.4.0/gems/bson_ext-1.12.5/ext/bson_ext"
@@ -440,7 +450,7 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   arch = spec.extensions.empty? ? 'any' : 'i686 x86_64'
   sha1sum = Digest::SHA1.file(gem_path).hexdigest
   # TODO: if license is not specified in spec, check HEAD spec, check -beta spec
-  licenses = spec.licenses.map{|l| Shellwords.escape(l)}
+  licenses = licenses(spec).map{|l| Shellwords.escape(l)}
   dependencies = generate_dependency_list(spec, config)
   existing_pkg[2] = dependencies
   filename_arch = spec.extensions.empty? ? 'any' : ARCHITECTURE
