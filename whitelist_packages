@@ -110,6 +110,7 @@ ipaddress
 jbuilder
 jekyll
 jekyll-feed
+jekyll-seo-tag
 jira4r
 jquery-rails
 jquery-ui-rails
