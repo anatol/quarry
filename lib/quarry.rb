@@ -166,8 +166,9 @@ def load_arch_packages
     # Rubygems likes to yank (delete) published gems.
     # Let's make sure our package is still valid gem.
     if not gem_exists(key[0], version) and version_gt(version, slot_to_version(*key))
-      fail("Gem '#{key[0]}' version '#{version}' is present in Arch index but has been yanked from gem repo. Please update the Arch index to match gem repo.")
-    end
+      puts "Gem '#{key[0]}' version '#{version}' is present in Arch index but has been yanked from gem repo. Please update the Arch index to match gem repo."
+      next
+   end
 
     result[key] = [version, pkgver, dependencies, arch_filename]
   end
