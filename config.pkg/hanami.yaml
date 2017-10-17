@@ -1,0 +1,5 @@
+optdepends:
+ - ruby-hanami-model
+ - ruby-shotgun
+ - ruby-sqlite3
+ - ruby-dotenv
