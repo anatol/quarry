@@ -12,6 +12,7 @@ GEM_SOURCE = Gem::Source.new(Gem.default_sources[0])
 QUARRY_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 INDEX_DIR = File.join(QUARRY_DIR, 'index')  # it is where we keep binary packages
 REPO_DB_FILE = File.join(INDEX_DIR, 'quarry.db.tar.xz')
+LASTUPDATE_FILE = File.join(INDEX_DIR, 'lastupdate')
 CONFIG_PKG_DIR = File.join(QUARRY_DIR, 'config.pkg')
 CONFIG_FILE = File.join(QUARRY_DIR, 'config.yaml')
 WORK_DIR = File.join(QUARRY_DIR, 'work')
@@ -607,9 +608,14 @@ def build_packages(packages_to_generate, existing_packages)
     sync_chroot_repo
   end
 
+  if repo_modified
+    IO.write(LASTUPDATE_FILE, File.mtime(REPO_DB_FILE).to_i.to_s)
+  end
+
   return repo_modified
 end
 
-def copy_repo_to(dest)
-  `rsync -avz --delete --exclude quarry.db.tar.xz.old --exclude quarry.files.tar.xz.old #{INDEX_DIR}/ #{dest}`
+def sync_repo_to(dest)
+  `rsync -avz --delete --exclude quarry.db.tar.xz.old --exclude quarry.files.tar.xz.old #{INDEX_DIR}/ #{dest}/x86_64/`
+  `scp #{LASTUPDATE_FILE} #{dest}/`
 end
