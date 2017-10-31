@@ -1,1 +1,3 @@
+depends:
+  - gpgme
 gem_install_args: -- --use-system-libraries
