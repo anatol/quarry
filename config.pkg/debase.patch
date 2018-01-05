@@ -1,0 +1,55 @@
+commit 5165efacce63cdbc7d0f7c613594b47d972c3219
+Author: Valentin Fondaratov <valentin.fondaratov@jetbrains.com>
+Date:   Tue Oct 17 17:13:15 2017 +0300
+
+    Support ruby 2.5 api
+    
+    In Ruby 2.5 new rb_execution_context_t struct
+    is introduced which encapsulates stack, its size and cfp.
+    
+    This commit adds a switch which uses either old or
+    new api depending on the headers debase is built upon.
+    
+    See also:
+    https://github.com/ruby/ruby/commit/9d09240d9e329bbe5a8168dd850f5bb3549fbaa9
+
+diff --git a/ext/extconf.rb b/ext/extconf.rb
+index b93f07d..31a1752 100644
+--- a/ext/extconf.rb
++++ b/ext/extconf.rb
+@@ -29,6 +29,7 @@ require "debase/ruby_core_source"
+ 
+ hdrs = proc {
+   have_header("vm_core.h")
++  have_header("version.h")
+ }
+ 
+ # Allow use customization of compile options. For example, the
+diff --git a/ext/hacks.h b/ext/hacks.h
+index 9fee1bf..849af6e 100644
+--- a/ext/hacks.h
++++ b/ext/hacks.h
+@@ -1,7 +1,14 @@
+ #include <vm_core.h>
++#include <version.h>
+ 
+ #define ruby_current_thread ((rb_thread_t *)RTYPEDDATA_DATA(rb_thread_current()))
+ 
++#if RUBY_API_VERSION_CODE >= 20500
++  #define TH_CFP(thread) (GET_CFP())
++#else
++  #define TH_CFP(thread) ((rb_control_frame_t *)(thread)->cfp)
++#endif
++
+ extern void
+ update_stack_size(debug_context_t *context) 
+ {
+@@ -9,5 +16,5 @@ update_stack_size(debug_context_t *context)
+ 
+   thread = ruby_current_thread;
+   /* see backtrace_each in vm_backtrace.c */
+-  context->stack_size = (int)(RUBY_VM_END_CONTROL_FRAME(thread) - thread->cfp - 1);
+-}
+\ No newline at end of file
++  context->stack_size = (int)(RUBY_VM_END_CONTROL_FRAME(thread) - TH_CFP(thread) - 1);
++}
