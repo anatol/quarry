@@ -211,7 +211,7 @@ def load_packages(packages_file, check_existance=true)
     # format either 'package' or 'package,slot'
     pkg = l.strip.split(',')
     pkg << nil if pkg.size == 1
-    raise AssertionError unless pkg.size == 2
+    raise "Invalid package version #{l}" unless pkg.size == 2
 
     result << pkg
   end
