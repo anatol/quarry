@@ -87,7 +87,9 @@ package() {
   # Preserve library and other required directories. Remove junk that gem installs.
   local _copydir=`mktemp -d -t $_gemname.XXX`
   chmod 755 $_copydir
+<% unless preserve_dirs.empty? %>
   (cd "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"/ && cp -r --parents <%= preserve_dirs.join(' ') %> $_copydir)
+<% end %>
   rm -rf "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"
   mv $_copydir "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"
 
