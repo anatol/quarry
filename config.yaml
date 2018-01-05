@@ -1,3 +1,7 @@
 ignored_packages:
   - libv8 # fails to build https://github.com/cowboyd/libv8/issues/246
   - mini_racer # it depends on beta version of libv8, and libv8 does not build
+  - rb-gsl
+  - rmagick
+  - debase
+  - addressable,2.2
