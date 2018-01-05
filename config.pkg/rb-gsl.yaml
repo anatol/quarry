@@ -1,2 +1,3 @@
-depends:
- - gsl
+# this package has been replaced with 'gsl'
+exclude:
+ - lib
