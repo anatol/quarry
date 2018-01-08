@@ -195,6 +195,7 @@ rdiscount
 RedCloth
 redis
 redis-namespace
+reek
 resque
 rethinkdb
 rinku
@@ -213,6 +214,7 @@ ruby-beautify
 ruby-debug-ide
 ruby-elf
 ruby-readability
+rufo
 rugged
 sanitize
 sass-rails
