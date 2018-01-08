@@ -221,6 +221,7 @@ sass-rails
 sdoc
 seed-fu
 sequel
+shog-build
 shoulda
 sidekiq
 sidekiq-statistic
