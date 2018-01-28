@@ -223,6 +223,7 @@ seed-fu
 sequel
 shog-build
 shoulda
+shout-bot
 sidekiq
 sidekiq-statistic
 simple-rss
