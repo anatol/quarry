@@ -24,12 +24,6 @@ ARCHITECTURE = `uname -m`.strip
 GEM_DIR = Gem.default_dir
 GEM_EXTENSION_DIR = File.join(GEM_DIR, 'extensions', Gem::Platform.local.to_s, Gem.extension_api_version)
 
-# gems that conflict with ruby package, 'ruby' already provides it
-# Some gems are bundled:
-#   https://github.com/ruby/ruby/blob/trunk/gems/bundled_gems
-# Some other are part of distribution and located in non-rubygem directories
-CONFLICTING_GEMS = %w(power_assert test-unit minitest rake net-telnet did_you_mean rdoc)
-
 PKGBUILD = %{# Maintainer: Ruby quarry (https://github.com/anatol/quarry)
 
 _gemname=<%= gem_name %>
@@ -419,7 +413,6 @@ end
 def generate_dependency_list(spec, config)
   dependencies = %w(ruby) +
                  spec.runtime_dependencies
-                     .reject { |d| CONFLICTING_GEMS.include?(d.name) }
                      .map { |d|
                    s = dependency_to_slot(d)
                    pkg_to_arch(d.name, s)
@@ -467,7 +460,7 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   # as it will conflict with a HEAD version of the package
   # Also remove binaries for conflicting gems.
   unless spec.executables.empty?
-    if slot.nil? and not CONFLICTING_GEMS.include?(name)
+    if slot.nil?
       preserve_dirs << spec.bindir
     else
       remove_binaries = true
