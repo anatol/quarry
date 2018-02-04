@@ -1,6 +1,10 @@
 ansi
 archive-tar-minitar
 aruba
+aws-sdk
+aws-sdk-core
+aws-sdk-resources
+aws-sigv4
 bcrypt
 blankslate
 bluecloth
@@ -23,11 +27,15 @@ chronic
 coderay
 coffee-rails
 coffee-rails,4.0
+colored
 compass
+configure-s3-website
 curb
 curses
 dashing
+deep_merge
 delayed_job
+dotenv
 droxi
 em-handlersocket
 em-http-request
@@ -82,6 +90,7 @@ ipaddress
 jbuilder
 jekyll
 jira4r
+jmespath
 jquery-rails
 json
 knife-azure
@@ -139,6 +148,7 @@ rubocop
 ruby-debug-ide
 ruby-elf
 rugged
+s3_website
 sass-rails
 sdoc
 sequel
