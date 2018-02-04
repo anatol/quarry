@@ -1,0 +1,52 @@
+diff --git a/ext/RMagick/extconf.rb b/ext/RMagick/extconf.rb
+index ffe85f9..a030835 100644
+--- a/ext/RMagick/extconf.rb
++++ b/ext/RMagick/extconf.rb
+@@ -65,7 +65,7 @@ module RMagick
+         # Check for Magick-config
+         if find_executable('Magick-config') && !has_graphicsmagick_libmagick_dev_compat?
+           $magick_config = true
+-          $magick_version = `Magick-config --version`[/^(\d+\.\d+\.\d+)/]
++          $magick_version = `PKG_CONFIG_PATH=/usr/lib/imagemagick6/pkgconfig Magick-config --version`[/^(\d+\.\d+\.\d+)/]
+         elsif find_executable('pkg-config')
+           $pkg_config = true
+           $magick_version = `pkg-config MagickCore --modversion`[/^(\d+\.\d+\.\d+)/]
+@@ -101,10 +101,10 @@ module RMagick
+         if $with_magick_wand
+           if $magick_config
+             # Save flags
+-            $CFLAGS     = ENV['CFLAGS'].to_s   + ' ' + `MagickWand-config --cflags`.chomp
+-            $CPPFLAGS   = ENV['CPPFLAGS'].to_s + ' ' + `MagickWand-config --cppflags`.chomp
+-            $LDFLAGS    = ENV['LDFLAGS'].to_s  + ' ' + `MagickWand-config --ldflags`.chomp
+-            $LOCAL_LIBS = ENV['LIBS'].to_s     + ' ' + `MagickWand-config --libs`.chomp
++            $CFLAGS     = ENV['CFLAGS'].to_s   + ' ' + `PKG_CONFIG_PATH=/usr/lib/imagemagick6/pkgconfig MagickWand-config --cflags`.chomp
++            $CPPFLAGS   = ENV['CPPFLAGS'].to_s + ' ' + `PKG_CONFIG_PATH=/usr/lib/imagemagick6/pkgconfig MagickWand-config --cppflags`.chomp
++            $LDFLAGS    = ENV['LDFLAGS'].to_s  + ' ' + `PKG_CONFIG_PATH=/usr/lib/imagemagick6/pkgconfig MagickWand-config --ldflags`.chomp
++            $LOCAL_LIBS = ENV['LIBS'].to_s     + ' ' + `PKG_CONFIG_PATH=/usr/lib/imagemagick6/pkgconfig MagickWand-config --libs`.chomp
+           end
+ 
+           if $pkg_config
+@@ -117,10 +117,10 @@ module RMagick
+         else
+           if $magick_config
+             # Save flags
+-            $CFLAGS     = ENV['CFLAGS'].to_s   + ' ' + `Magick-config --cflags`.chomp
+-            $CPPFLAGS   = ENV['CPPFLAGS'].to_s + ' ' + `Magick-config --cppflags`.chomp
+-            $LDFLAGS    = ENV['LDFLAGS'].to_s  + ' ' + `Magick-config --ldflags`.chomp
+-            $LOCAL_LIBS = ENV['LIBS'].to_s     + ' ' + `Magick-config --libs`.chomp
++            $CFLAGS     = ENV['CFLAGS'].to_s   + ' ' + `PKG_CONFIG_PATH=/usr/lib/imagemagick6/pkgconfig Magick-config --cflags`.chomp
++            $CPPFLAGS   = ENV['CPPFLAGS'].to_s + ' ' + `PKG_CONFIG_PATH=/usr/lib/imagemagick6/pkgconfig Magick-config --cppflags`.chomp
++            $LDFLAGS    = ENV['LDFLAGS'].to_s  + ' ' + `PKG_CONFIG_PATH=/usr/lib/imagemagick6/pkgconfig Magick-config --ldflags`.chomp
++            $LOCAL_LIBS = ENV['LIBS'].to_s     + ' ' + `PKG_CONFIG_PATH=/usr/lib/imagemagick6/pkgconfig Magick-config --libs`.chomp
+           end
+ 
+           if $pkg_config
+@@ -335,7 +335,7 @@ END_MSWIN
+       if RUBY_PLATFORM !~ /mswin|mingw/
+ 
+         # check for pkg-config if Magick-config doesn't exist
+-        if $magick_config && `Magick-config --libs`[/\bl\s*(MagickCore|Magick)6?\b/]
++        if $magick_config && `PKG_CONFIG_PATH=/usr/lib/imagemagick6/pkgconfig Magick-config --libs`[/\bl\s*(MagickCore|Magick)6?\b/]
+         elsif $pkg_config && `pkg-config --libs MagickCore`[/\bl\s*(MagickCore|Magick)6?\b/]
+         else
+             exit_failure "Can't install RMagick #{RMAGICK_VERS}. " \

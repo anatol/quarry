@@ -6,30 +6,23 @@ require 'rubygems/name_tuple'
 require 'rubygems/package'
 require 'rubygems/remote_fetcher'
 
-
-
 GEM_SOURCE = Gem::Source.new(Gem.default_sources[0])
 QUARRY_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 INDEX_DIR = File.join(QUARRY_DIR, 'index')  # it is where we keep binary packages
 REPO_DB_FILE = File.join(INDEX_DIR, 'quarry.db.tar.xz')
+LASTUPDATE_FILE = File.join(INDEX_DIR, 'lastupdate')
 CONFIG_PKG_DIR = File.join(QUARRY_DIR, 'config.pkg')
+CONFIG_FILE = File.join(QUARRY_DIR, 'config.yaml')
 WORK_DIR = File.join(QUARRY_DIR, 'work')
 WORK_REPO_DIR = File.join(WORK_DIR, 'repo')
 WORK_BUILD_DIR = File.join(WORK_DIR, 'build')
 CHROOT_DIR = File.join(WORK_DIR, 'chroot')
 CHROOT_ROOT_DIR = File.join(CHROOT_DIR, 'root')
 CHROOT_QUARRY_PATH = '/var/quarry-repo' # path to quarry repository inside the chroot
+ARCHITECTURE = `uname -m`.strip
 
-# TODO: choose other directory to avoid file conflicts?
 GEM_DIR = Gem.default_dir
 GEM_EXTENSION_DIR = File.join(GEM_DIR, 'extensions', Gem::Platform.local.to_s, Gem.extension_api_version)
-
-# gems that conflict with ruby package, 'ruby' already provides it
-# Some gems are bundled:
-#   https://github.com/ruby/ruby/blob/trunk/gems/bundled_gems
-# Some other are part of distribution and located in non-rubygem directories
-CONFLICTING_GEMS = %w(power_assert test-unit minitest rake net-telnet did_you_mean rdoc)
-
 
 PKGBUILD = %{# Maintainer: Ruby quarry (https://github.com/anatol/quarry)
 
@@ -81,18 +74,24 @@ package() {
   # non-HEAD version should not install any files in /usr/bin
   rm -r "$pkgdir"/usr/bin/
 <% end %>
-  local _extdir="$pkgdir/<%= gem_extension_dir %>/$_gemname-$pkgver"
-  if [ -d "$_extdir" ]; then
-    rm -rf "$_extdir"/*
-    touch "$_extdir/gem.build_complete"
-  fi
 
-<% if delete_dirs %>
-  rm -rf "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"/<%= delete_dirs %>
+  # Preserve library and other required directories. Remove junk that gem installs.
+  local _copydir=`mktemp -d -t $_gemname.XXX`
+  chmod 755 $_copydir
+<% unless preserve_dirs.empty? %>
+  (cd "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"/ && cp -r --parents <%= preserve_dirs.join(' ') %> $_copydir)
 <% end %>
+  rm -rf "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"
+  mv $_copydir "$pkgdir/$_gemdir/gems/$_gemname-$pkgver"
+
 <% for from,to in rename %>
   mv "$pkgdir/usr/bin/<%= from %>" "$pkgdir/usr/bin/<%= to %>"
 <% end if rename %>
+<% if contains_extensions %>
+  rm -rf "$pkgdir/<%= gem_extension_dir %>/$_gemname-$pkgver/"
+  mkdir -p "$pkgdir/<%= gem_extension_dir %>/$_gemname-$pkgver/"
+  touch "$pkgdir/<%= gem_extension_dir %>/$_gemname-$pkgver/gem.build_complete"
+<% end %>
 }
 }
 
@@ -129,12 +128,12 @@ def load_arch_packages
   `tar xvfJ #{REPO_DB_FILE} -C #{WORK_REPO_DIR}`
 
   result = {} # [name,slot] => [version,pkgver,[depenedncies]]
-  for p in Dir[WORK_REPO_DIR + '/ruby-*'] do
+  for p in Dir[WORK_REPO_DIR + '/ruby-*']
     # parse Arch description file
     desc = IO.readlines(p + '/desc').map(&:strip)
-    arch_name = desc[desc.index('%NAME%')+1]
-    arch_version = desc[desc.index('%VERSION%')+1]
-    arch_filename = desc[desc.index('%FILENAME%')+1]
+    arch_name = desc[desc.index('%NAME%') + 1]
+    arch_version = desc[desc.index('%VERSION%') + 1]
+    arch_filename = desc[desc.index('%FILENAME%') + 1]
 
     key = arch_to_pkg(arch_name)
     fail("Duplicated package exists: #{arch_name}") if result[key]
@@ -146,22 +145,23 @@ def load_arch_packages
       fail("Package #{arch_name} in repository has incorrect version: #{arch_version}")
     end
 
-    if File.exists?(p + '/depends') then
+    if File.exists?(p + '/depends')
       dependencies = IO.readlines(p + '/depends').map(&:strip)
     else
       # since pacman 5.0 dependencies merged with 'desc' file
       dependencies = desc
     end
 
-    dependencies = dependencies[dependencies.index('%DEPENDS%')+1..-1]
+    dependencies = dependencies[dependencies.index('%DEPENDS%') + 1..-1]
     enddeps = dependencies.index('')
-    dependencies = dependencies[0..enddeps-1] if enddeps
+    dependencies = dependencies[0..enddeps - 1] if enddeps
     dependencies.sort!
 
     # Rubygems likes to yank (delete) published gems.
     # Let's make sure our package is still valid gem.
     if not gem_exists(key[0], version) and version_gt(version, slot_to_version(*key))
-      fail("Gem '#{key[0]}' version '#{version}' is present in Arch index but has been yanked from gem repo. Please update the Arch index to match gem repo.")
+      puts "Gem '#{key[0]}' version '#{version}' is present in Arch index but has been yanked from gem repo. Please update the Arch index to match gem repo."
+      next
     end
 
     result[key] = [version, pkgver, dependencies, arch_filename]
@@ -170,7 +170,7 @@ def load_arch_packages
   return result
 end
 
-def pkg_to_arch(name, slot, with_prefix=true)
+def pkg_to_arch(name, slot, with_prefix = true)
   result = with_prefix ? 'ruby-' : ''
   result += name
   result += '-' + slot if slot
@@ -187,15 +187,15 @@ def arch_to_pkg(arch_name)
   separator = name.rindex('-')
   fail("Cannot find gem for arch package #{arch_name}") unless separator
 
-  slot = name[separator+1..-1]
-  name = name[0..separator-1]
+  slot = name[separator + 1..-1]
+  name = name[0..separator - 1]
 
   index = prerelease_version?(slot) ? @gems_beta : @gems_stable
   fail("Cannot find gem with name #{name} for arch package #{arch_name}") unless index[name]
   return [name, slot]
 end
 
-def load_packages(packages_file, check_existance=true)
+def load_packages(packages_file, check_existance = true)
   result = []
   filename = File.join(QUARRY_DIR, packages_file)
   return result unless File.exists?(filename)
@@ -204,7 +204,7 @@ def load_packages(packages_file, check_existance=true)
     # format either 'package' or 'package,slot'
     pkg = l.strip.split(',')
     pkg << nil if pkg.size == 1
-    raise AssertionError unless pkg.size == 2
+    raise "Invalid package version #{l}" unless pkg.size == 2
 
     result << pkg
   end
@@ -231,19 +231,19 @@ end
 def dependency_to_slot(dep)
   index = @gems_stable
   all_versions = index[dep.name]
-  fail("No versions found for gem #{dep.name}") unless all_versions
 
-  required_ind = all_versions.rindex{|v| dep.requirement.satisfied_by?(Gem::Version.new(v)) and matches_ruby(dep.name, v)}
+  # Note that all_versions might be nil if gem contains no stable releases
+  required_ind = all_versions && all_versions.rindex { |v| dep.requirement.satisfied_by?(Gem::Version.new(v)) and matches_ruby(dep.name, v) }
   if not required_ind and dep.prerelease?
     # do the same search but in beta index
     index = @gems_beta
     all_versions = index[dep.name]
-    required_ind = all_versions.rindex{|v| dep.requirement.satisfied_by?(Gem::Version.new(v)) and matches_ruby(dep.name, v)}
+    required_ind = all_versions.rindex { |v| dep.requirement.satisfied_by?(Gem::Version.new(v)) and matches_ruby(dep.name, v) }
   end
   fail("Cannot resolve package dependency: #{dep}") unless required_ind
 
   required_version = all_versions[required_ind]
-  next_version = all_versions[required_ind+1]
+  next_version = all_versions[required_ind + 1]
 
   # if found package is beta package then its slot equals to the version
   return required_version if prerelease_version?(required_version)
@@ -254,7 +254,7 @@ def dependency_to_slot(dep)
   slot = ''
   v1 = required_version.split('.')
   v2 = next_version.split('.')
-  v1.zip(v2).each do |p1,p2|
+  v1.zip(v2).each do |p1, p2|
     fail("Cannot generate arch name for dependency #{dep}") unless p1
     slot += p1
 
@@ -273,7 +273,7 @@ def slot_to_version(name, slot)
   index = prerelease_version?(slot) ? @gems_beta : @gems_stable
   versions = index[name]
   fail("Cannot find gem name for [#{name},#{slot}]") unless versions
-  versions = versions.select{|v| v == slot or v.start_with?(slot + '.')} if slot
+  versions = versions.select { |v| v == slot or v.start_with?(slot + '.') } if slot
   fail("Cannot find version for [#{name},#{slot}]") if versions.empty?
 
   for version in versions.reverse
@@ -289,6 +289,13 @@ def gem_exists(name, version)
   return true if @gems_beta[name] and @gems_beta[name].include?(version)
 
   return false
+end
+
+def ignored_packages
+  pkgs = @config['ignored_packages'] if @config
+  pkgs = [] if pkgs.nil?
+
+  pkgs.map { |p| [p, nil] }
 end
 
 def init
@@ -309,7 +316,7 @@ def init
     # Remove possible cache files left from previous build
     `sudo rm -f /var/cache/pacman/pkg/ruby-*`
 
-    `mkarchroot -C /usr/share/devtools/pacman-extra.conf -M /usr/share/devtools/makepkg-x86_64.conf #{CHROOT_ROOT_DIR} base-devel ruby`
+    `mkarchroot -C /usr/share/devtools/pacman-extra.conf -M /usr/share/devtools/makepkg-#{ARCHITECTURE}.conf #{CHROOT_ROOT_DIR} base-devel ruby`
     pacman_conf = File.join(CHROOT_ROOT_DIR, 'etc', 'pacman.conf')
     `sudo sh -c 'chmod o+w #{pacman_conf}'`
 
@@ -320,14 +327,16 @@ def init
 
     sync_chroot_repo
   end
+
+  @config = YAML.load(IO.read(CONFIG_FILE))
 end
 
 def out_of_date_packages(existing_packages)
   result = []
 
   # find out-of-date existing packages
-  for k,v in existing_packages do
-    name,slot = *k
+  for k, v in existing_packages
+    name, slot = *k
     latest = slot_to_version(name, slot)
     # check if released version diverges from current quarry version
     result << k if latest != v[0]
@@ -343,8 +352,8 @@ end
 def package_with_changed_dependencies(existing_packages)
   # check if we need to regenerate it in case if versioned deps have changed
   result = []
-  for k,v in existing_packages do
-    name,slot = *k
+  for k, v in existing_packages
+    name, slot = *k
     spec = package_spec(name, v[0])
     config = load_config_file(name, slot)
     dependencies = generate_dependency_list(spec, config)
@@ -370,53 +379,44 @@ def find_license_files(spec)
   return license_files
 end
 
-def calculate_delete_dirs(spec, config)
-  to_delete = [] # dirs/files to delete
+# Maps license names from Rubygems to Arch names
+def licenses(spec)
+  spec.licenses.map { |l|
+    case l
+    when 'Apache 2.0' then 'Apache'
+    when 'Apache-2.0' then 'Apache'
+    else l
+    end
+  }
+end
 
-  # spec.full_require_paths contains too much garbage
-  required = %w(lib)
-  required << spec.bindir unless spec.executables.empty?
+def calculate_preserved_dirs(spec, config)
+  gem_dir = spec.full_gem_path
+  # full_require_paths contains absolute path like "/usr/lib/ruby/gems/2.4.0/gems/bson_ext-1.12.5/ext/bson_ext"
+  required = spec.full_require_paths.reject { |p| not p.start_with?(gem_dir) }.map { |p| p[gem_dir.length + 1..-1] }
+
   if config and config['include']
+    dup = required & config['include'] # directories come both from gemspec and config
+    puts "Following directories already included by gemspec: #{dup}" unless dup.empty?
     required += config['include']
   end
 
-  # find parents for required
-  parents = required.map{ |f|
-    f = '/' + Pathname.new(f).cleanpath.to_path
-    ind = f.rindex('/')
-    f = f[0..ind]
-    f = f[0..-2] # strip last slash
-  }.uniq.sort.reverse  # the most specific directory goes first
-
-  # iterate all existing and if it is in one of the parents - add parent+firstchild to delete
-  for f in spec.files
-    f = '/' + Pathname.new(f).cleanpath.to_path
-
-    # find the fisrt (most specific) parent directory
-    for p in parents
-      if f.start_with?(p)
-        # find first child part inside the parent dir
-        ind = f.index('/', p.size+1)
-        child = ind ? f[0..ind-1] : f
-        child = child[1..-1] # remove leading slash that we added
-        to_delete << child unless required.include?(child)
-        break
-      end
-    end
+  if config and config['exclude']
+    nodir = config['exclude'] - required # directories asked to exclude but do not exist
+    puts "Following directories asked to exlude but they do not exists: #{nodir}" unless nodir.empty?
+    required -= config['exclude']
   end
-  to_delete.uniq!
 
-  return to_delete
+  return required
 end
 
 def generate_dependency_list(spec, config)
   dependencies = %w(ruby) +
-    spec.runtime_dependencies
-        .reject{|d| CONFLICTING_GEMS.include?(d.name)}
-        .map{|d|
-      s = dependency_to_slot(d)
-      pkg_to_arch(d.name, s)
-    }
+                 spec.runtime_dependencies
+                     .map { |d|
+                   s = dependency_to_slot(d)
+                   pkg_to_arch(d.name, s)
+                 }
 
   if config and config['depends']
     dependencies = config['depends'] + dependencies
@@ -445,31 +445,26 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   arch = spec.extensions.empty? ? 'any' : 'i686 x86_64'
   sha1sum = Digest::SHA1.file(gem_path).hexdigest
   # TODO: if license is not specified in spec, check HEAD spec, check -beta spec
-  licenses = spec.licenses.map{|l| Shellwords.escape(l)}
+  licenses = licenses(spec).map { |l| Shellwords.escape(l) }
   dependencies = generate_dependency_list(spec, config)
   existing_pkg[2] = dependencies
-  filename_arch = spec.extensions.empty? ? 'any' : 'x86_64'
+  filename_arch = spec.extensions.empty? ? 'any' : ARCHITECTURE
   bin_filename = "#{arch_name}-#{version}-#{pkgver}-#{filename_arch}.pkg.tar.xz"
-
 
   patch_file = check_pkg_file(name, slot, 'patch')
   patch_sha = Digest::SHA1.file(patch_file).hexdigest if patch_file
 
-  delete_dirs = calculate_delete_dirs(spec, config)
+  preserve_dirs = calculate_preserved_dirs(spec, config)
 
   # In case we generate a non-HEAD version of a package, we should clean /usr/bin
   # as it will conflict with a HEAD version of the package
   # Also remove binaries for conflicting gems.
-  if ((not slot.nil? or CONFLICTING_GEMS.include?(name)) and not spec.executables.empty?)
-    remove_binaries = true
-    delete_dirs << spec.bindir
-  end
-
-  # unfortunately bash brace extension required at least 2 elements, thus we make a special case for 1-element delete
-  delete_dirs_bash = case delete_dirs.size
-    when 0 then nil
-    when 1 then delete_dirs[0]
-    else '{' + delete_dirs.join(',') + '}'
+  unless spec.executables.empty?
+    if slot.nil?
+      preserve_dirs << spec.bindir
+    else
+      remove_binaries = true
+    end
   end
 
   optdepends = (config and config['optdepends'])
@@ -490,7 +485,7 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
     sha1sum: sha1sum,
     depends: dependencies.join(' '),
     license_files: find_license_files(spec),
-    delete_dirs: delete_dirs_bash,
+    preserve_dirs: preserve_dirs,
     remove_binaries: remove_binaries,
     gem_dir: GEM_DIR,
     gem_extension_dir: GEM_EXTENSION_DIR,
@@ -498,7 +493,8 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
     makedepends: makedepends,
     optdepends: optdepends,
     rename: rename,
-    gem_install_args: gem_install_args
+    gem_install_args: gem_install_args,
+    contains_extensions: !spec.extensions.empty?,
   }
   content = Erubis::Eruby.new(PKGBUILD).result(params)
 
@@ -512,7 +508,7 @@ def slot_ledder(slot)
   result = []
   while ind = slot.rindex('.')
     result << slot
-    slot = slot[0..ind-1]
+    slot = slot[0..ind - 1]
   end
   result << slot
   return result
@@ -534,7 +530,7 @@ def load_config_file(name, slot)
 end
 
 def sync_chroot_repo
-  `sudo systemd-nspawn -q --bind-ro=#{INDEX_DIR}:#{CHROOT_QUARRY_PATH} -D #{CHROOT_ROOT_DIR} pacman -Sy`
+  `sudo systemd-nspawn -q --bind-ro=#{INDEX_DIR}:#{CHROOT_QUARRY_PATH} -D #{CHROOT_ROOT_DIR} pacman -Syu --noconfirm`
 end
 
 # generates PKGBUILD, builds binary package for it, copies to index directory and adds it to the Arch repository
@@ -545,7 +541,7 @@ def build_package(name, slot, existing_pkg)
   FileUtils.mkpath(work_dir)
 
   config = load_config_file(name, slot)
-  pkgbuild,gem_path,bin_filename = generate_pkgbuild(name, slot, existing_pkg, config)
+  pkgbuild, gem_path, bin_filename = generate_pkgbuild(name, slot, existing_pkg, config)
   Dir.chdir(work_dir) {
     IO.write('PKGBUILD', pkgbuild)
     FileUtils.cp(gem_path, '.')
@@ -565,11 +561,11 @@ end
 def build_packages(packages_to_generate, existing_packages)
   repo_modified = false
 
-  while pkg = packages_to_generate.last do
+  while pkg = packages_to_generate.last
     version = slot_to_version(*pkg)
     spec = package_spec(pkg[0], version)
     upfront_deps = [] # packages should be processed before 'pkg'
-    for d in spec.runtime_dependencies do
+    for d in spec.runtime_dependencies
       s = dependency_to_slot(d)
       key = [d.name, s]
 
@@ -583,7 +579,7 @@ def build_packages(packages_to_generate, existing_packages)
     end
 
     # head version should be built before slot version to avoid conflicting files
-    key = [pkg[0],nil]
+    key = [pkg[0], nil]
     if pkg[1] and packages_to_generate.include?(key)
       packages_to_generate.delete(key)
       upfront_deps << key
@@ -604,9 +600,14 @@ def build_packages(packages_to_generate, existing_packages)
     sync_chroot_repo
   end
 
+  if repo_modified
+    IO.write(LASTUPDATE_FILE, File.mtime(REPO_DB_FILE).to_i.to_s)
+  end
+
   return repo_modified
 end
 
-def copy_repo_to(dest)
-  `rsync -avz --delete --exclude quarry.db.tar.xz.old --exclude quarry.files.tar.xz.old #{INDEX_DIR}/ #{dest}`
+def sync_repo_to(dest)
+  `rsync -avz --delete --exclude quarry.db.tar.xz.old --exclude quarry.files.tar.xz.old #{INDEX_DIR}/ #{dest}/x86_64/`
+  `scp #{LASTUPDATE_FILE} #{dest}/`
 end

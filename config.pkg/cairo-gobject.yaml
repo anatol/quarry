@@ -1,4 +1,3 @@
-depends:
- - gtk2
 makedepends:
  - ruby-native-package-installer
+

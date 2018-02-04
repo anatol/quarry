@@ -1,0 +1,7 @@
+makedepends:
+  - python2
+  - git
+include:
+  - ext
+  - vendor/v8/include
+  - vendor/v8/out/x64.release/libv8_*.a

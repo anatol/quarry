@@ -1,13 +1,13 @@
-diff --git a/railties/lib/rails/generators/app_base.rb b/railties/lib/rails/generators/app_base.rb
-index 5f8c33c..0df6857 100644
---- a/lib/rails/generators/app_base.rb
-+++ b/lib/rails/generators/app_base.rb
-@@ -29,7 +29,7 @@ module Rails
-         class_option :skip_gemfile,       type: :boolean, default: false,
-                                           desc: "Don't create a Gemfile"
+diff --git a/railties/lib/rails/generators/rails/app/app_generator.rb b/railties/lib/rails/generators/rails/app/app_generator.rb
+index f4717bb35b..a92406e624 100644
+--- a/lib/rails/generators/rails/app/app_generator.rb
++++ b/lib/rails/generators/rails/app/app_generator.rb
+@@ -221,7 +221,7 @@ class AppGenerator < AppBase # :nodoc:
+       class_option :api, type: :boolean,
+                          desc: "Preconfigure smaller stack for API only apps"
  
--        class_option :skip_bundle,        type: :boolean, aliases: '-B', default: false,
-+        class_option :skip_bundle,        type: :boolean, aliases: '-B', default: true,
-                                           desc: "Don't run bundle install"
+-      class_option :skip_bundle, type: :boolean, aliases: "-B", default: false,
++      class_option :skip_bundle, type: :boolean, aliases: "-B", default: true,
+                                  desc: "Don't run bundle install"
  
-         class_option :skip_git,           type: :boolean, aliases: '-G', default: false,
+       def initialize(*args)

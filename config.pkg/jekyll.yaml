@@ -1,3 +1,4 @@
 optdepends:
   ruby-rb-gsl: Use GSL to make jekyll fast
   ruby-rdiscount: Alternative markdown parser
+  ruby-jekyll-feed: Plugin to generate an Atom feed

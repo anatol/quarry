@@ -1,2 +1,4 @@
 depends:
  - pango
+makedepends:
+ - ruby-native-package-installer
