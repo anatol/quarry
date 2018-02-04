@@ -4,6 +4,9 @@ archive-tar-minitar
 arel
 aruba
 aws-sdk
+aws-sdk-core
+aws-sdk-resources
+aws-sigv4
 babel-transpiler
 barber
 bcrypt
@@ -34,11 +37,15 @@ chronic
 coderay
 coffee-rails
 coffee-rails,4.0
+colored
 compass
+configure-s3-website
 curb
 curses
 dashing
+deep_merge
 delayed_job
+dotenv
 discourse_fastimage
 discourse-qunit-rails
 droxi
@@ -113,6 +120,7 @@ jekyll
 jekyll-feed
 jekyll-seo-tag
 jira4r
+jmespath
 jquery-rails
 jquery-ui-rails
 json
@@ -216,6 +224,7 @@ ruby-elf
 ruby-readability
 rufo
 rugged
+s3_website
 sanitize
 sass-rails
 sdoc
