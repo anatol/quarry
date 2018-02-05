@@ -124,6 +124,7 @@ jmespath
 jquery-rails
 jquery-ui-rails
 json
+kbsecret
 knife-azure
 knife-ec2
 kramdown-rfc2629
