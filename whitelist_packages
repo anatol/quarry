@@ -3,6 +3,7 @@ ansi
 archive-tar-minitar
 arel
 aruba
+asciidoctor
 aws-sdk
 aws-sdk-core
 aws-sdk-resources
@@ -38,16 +39,18 @@ coderay
 coffee-rails
 coffee-rails,4.0
 colored
+commonmarker
 compass
 configure-s3-website
+creole
 curb
 curses
 dashing
 deep_merge
 delayed_job
-dotenv
 discourse_fastimage
 discourse-qunit-rails
+dotenv
 droxi
 email_reply_trimmer
 ember-handlebars-template
@@ -173,6 +176,7 @@ omnibus
 onebox
 opengl
 openid-redis-store
+org-ruby
 origami
 padrino
 papertrail
@@ -279,6 +283,7 @@ web-console
 web-console,2
 webgen
 webmock
+wikicloth
 wikitext
 winrm-fs
 xmpp4r
