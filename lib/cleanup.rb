@@ -29,6 +29,7 @@ end
 init()
 existing_packages = load_arch_packages()
 whitelist_packages = load_packages('whitelist_packages')
+official_packages = get_official_packages()
 
 # 1. Find packages that are not needed for whitelist
 required_pkgs = find_all_dependencies(whitelist_packages, existing_packages)
@@ -36,7 +37,7 @@ unneeded_pkgs = existing_packages.keys - required_pkgs
 # let's leave existing head packages and drop only versioned one
 unneeded_pkgs.reject! { |p| p[1].nil? }
 # packages that exist in the official repos should always be dropped.
-drop_pkgs = unneeded_pkgs + (existing_packages.keys & get_official_packages())
+drop_pkgs = unneeded_pkgs + (existing_packages.keys & official_packages)
 
 unless drop_pkgs.empty?
   rm_list = drop_pkgs.map { |p| pkg_to_arch(*p) }.join(' ')
