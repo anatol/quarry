@@ -35,10 +35,12 @@ required_pkgs = find_all_dependencies(whitelist_packages, existing_packages)
 unneeded_pkgs = existing_packages.keys - required_pkgs
 # let's leave existing head packages and drop only versioned one
 unneeded_pkgs.reject! { |p| p[1].nil? }
+# packages that exist in the official repos should always be dropped.
+drop_pkgs = unneeded_pkgs + (existing_packages.keys & get_official_packages())
 
-unless unneeded_pkgs.empty?
-  unneeded = unneeded_pkgs.map { |p| pkg_to_arch(*p) }.join(' ')
-  puts ' repo-remove -s quarry.db.tar.xz ' + unneeded
+unless drop_pkgs.empty?
+  rm_list = drop_pkgs.map { |p| pkg_to_arch(*p) }.join(' ')
+  puts ' repo-remove -s quarry.db.tar.xz ' + rm_list
 end
 
 # 2. Find all packages in index directory that are not present in repo (i.e. old versions)
