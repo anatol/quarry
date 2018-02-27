@@ -326,6 +326,8 @@ def init
     open(pacman_conf, 'a') { |f|
       f.puts '[quarry]'
       f.puts "Server = file://#{CHROOT_QUARRY_PATH}"
+      f.puts '[options]'
+      f.puts "CacheDir = #{CHROOT_QUARRY_PATH}"
     }
 
     sync_chroot_repo
