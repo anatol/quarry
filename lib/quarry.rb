@@ -24,10 +24,6 @@ ARCHITECTURE = `uname -m`.strip
 GEM_DIR = Gem.default_dir
 GEM_EXTENSION_DIR = File.join(GEM_DIR, 'extensions', Gem::Platform.local.to_s, Gem.extension_api_version)
 
-# gems that already exist as packages in the official repositories, and should not be built again.
-# This should be accessed via get_official_packages() to ensure it has been initialized.
-official_packages = []
-
 PKGBUILD = %{# Maintainer: Ruby quarry (https://github.com/anatol/quarry)
 
 _gemname=<%= gem_name %>
@@ -199,13 +195,14 @@ def arch_to_pkg(arch_name)
   return [name, slot]
 end
 
+# gems that already exist as packages in the official repositories, and should not be built again.
+# This should be accessed via get_official_packages() to ensure it has been initialized.
+def init_official_packages
+  @official_packages = `pacman -Slq extra community | grep ^ruby-`.split(' ').map { |p| arch_to_pkg(p) }
+end
+
 def get_official_packages
-  if official_packages.empty?
-    for p in `pacman -Slq extra community | grep ^ruby-`.split(' ')
-      official_packages << arch_to_pkg(p)
-    end
-  end
-  return official_packages
+  @official_packages
 end
 
 def load_packages(packages_file, check_existance = true)
@@ -347,6 +344,8 @@ def init
   end
 
   @config = YAML.load(IO.read(CONFIG_FILE))
+
+  init_official_packages
 end
 
 def out_of_date_packages(existing_packages)
