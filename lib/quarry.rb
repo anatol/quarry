@@ -24,6 +24,10 @@ ARCHITECTURE = `uname -m`.strip
 GEM_DIR = Gem.default_dir
 GEM_EXTENSION_DIR = File.join(GEM_DIR, 'extensions', Gem::Platform.local.to_s, Gem.extension_api_version)
 
+# gems that already exist as packages in the official repositories, and should not be built again.
+# This should be accessed via get_official_packages() to ensure it has been initialized.
+official_packages = []
+
 PKGBUILD = %{# Maintainer: Ruby quarry (https://github.com/anatol/quarry)
 
 _gemname=<%= gem_name %>
@@ -193,6 +197,15 @@ def arch_to_pkg(arch_name)
   index = prerelease_version?(slot) ? @gems_beta : @gems_stable
   fail("Cannot find gem with name #{name} for arch package #{arch_name}") unless index[name]
   return [name, slot]
+end
+
+def get_official_packages
+  if official_packages.empty?
+    for p in `pacman -Slq extra community | grep ^ruby-`.split(' ')
+      official_packages << arch_to_pkg(p)
+    end
+  end
+  return official_packages
 end
 
 def load_packages(packages_file, check_existance = true)
@@ -574,6 +587,7 @@ def build_packages(packages_to_generate, existing_packages)
       s = dependency_to_slot(d)
       key = [d.name, s]
 
+      next if get_official_packages.include?(key)
       if packages_to_generate.include?(key)
         # if dependency has to be generated, do it before 'pkg'
         packages_to_generate.delete(key)
@@ -596,6 +610,8 @@ def build_packages(packages_to_generate, existing_packages)
     end
 
     packages_to_generate.pop
+
+    next if get_official_packages.include?(pkg)
 
     existing_packages[pkg] = {} unless existing_packages[pkg] # create a stub for the existing package
     build_package(*pkg, existing_packages[pkg])
