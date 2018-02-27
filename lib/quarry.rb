@@ -195,6 +195,16 @@ def arch_to_pkg(arch_name)
   return [name, slot]
 end
 
+# gems that already exist as packages in the official repositories, and should not be built again.
+# This should be accessed via get_official_packages() to ensure it has been initialized.
+def init_official_packages
+  @official_packages = `pacman -Slq extra community | grep ^ruby-`.split(' ').map { |p| arch_to_pkg(p) }
+end
+
+def get_official_packages
+  @official_packages
+end
+
 def load_packages(packages_file, check_existance = true)
   result = []
   filename = File.join(QUARRY_DIR, packages_file)
@@ -302,7 +312,10 @@ def init
   @gems_stable = load_gem_index(:released)
   @gems_beta = load_gem_index(:prerelease)
 
-  FileUtils.mkdir(INDEX_DIR) unless File.directory?(INDEX_DIR)
+  unless File.directory?(INDEX_DIR)
+    FileUtils.mkdir(INDEX_DIR)
+    `repo-add -s #{REPO_DB_FILE} 2>&1`
+  end
 
   FileUtils.rm_rf(WORK_REPO_DIR)
 
@@ -323,12 +336,16 @@ def init
     open(pacman_conf, 'a') { |f|
       f.puts '[quarry]'
       f.puts "Server = file://#{CHROOT_QUARRY_PATH}"
+      f.puts '[options]'
+      f.puts "CacheDir = #{CHROOT_QUARRY_PATH}"
     }
 
     sync_chroot_repo
   end
 
   @config = YAML.load(IO.read(CONFIG_FILE))
+
+  init_official_packages
 end
 
 def out_of_date_packages(existing_packages)
@@ -569,6 +586,7 @@ def build_packages(packages_to_generate, existing_packages)
       s = dependency_to_slot(d)
       key = [d.name, s]
 
+      next if get_official_packages.include?(key)
       if packages_to_generate.include?(key)
         # if dependency has to be generated, do it before 'pkg'
         packages_to_generate.delete(key)
@@ -591,6 +609,8 @@ def build_packages(packages_to_generate, existing_packages)
     end
 
     packages_to_generate.pop
+
+    next if get_official_packages.include?(pkg)
 
     existing_packages[pkg] = {} unless existing_packages[pkg] # create a stub for the existing package
     build_package(*pkg, existing_packages[pkg])
