@@ -302,7 +302,10 @@ def init
   @gems_stable = load_gem_index(:released)
   @gems_beta = load_gem_index(:prerelease)
 
-  FileUtils.mkdir(INDEX_DIR) unless File.directory?(INDEX_DIR)
+  unless File.directory?(INDEX_DIR)
+    FileUtils.mkdir(INDEX_DIR)
+    `repo-add -s #{REPO_DB_FILE} 2>&1`
+  end
 
   FileUtils.rm_rf(WORK_REPO_DIR)
 
