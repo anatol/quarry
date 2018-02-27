@@ -42,6 +42,7 @@ colored
 commonmarker
 compass
 configure-s3-website
+config_curator
 creole
 curb
 curses
