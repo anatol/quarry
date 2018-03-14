@@ -121,8 +121,10 @@ image_optim
 ipaddress
 jbuilder
 jekyll
+jekyll-archives
 jekyll-feed
 jekyll-seo-tag
+jekyll-sitemap
 jira4r
 jmespath
 jquery-rails

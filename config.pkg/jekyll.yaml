@@ -1,4 +1,7 @@
 optdepends:
   ruby-rb-gsl: Use GSL to make jekyll fast
   ruby-rdiscount: Alternative markdown parser
+  ruby-jekyll-archives: Plugin to generate archive pages
   ruby-jekyll-feed: Plugin to generate an Atom feed
+  ruby-jekyll-seo-tag: Plugin to add meta tags for SEO
+  ruby-jekyll-sitemap: Plugin to generate sitemap
