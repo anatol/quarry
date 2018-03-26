@@ -1,4 +1,5 @@
 depends:
   - libssh2
+  - curl
 makedepends:
   - cmake
