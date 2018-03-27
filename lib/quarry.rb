@@ -1,28 +1,28 @@
-require 'digest/sha1'
-require 'erubis'
-require 'shellwords'
-require 'pathname'
-require 'rubygems/name_tuple'
-require 'rubygems/package'
-require 'rubygems/remote_fetcher'
+require "digest/sha1"
+require "erubis"
+require "shellwords"
+require "pathname"
+require "rubygems/name_tuple"
+require "rubygems/package"
+require "rubygems/remote_fetcher"
 
 GEM_SOURCE = Gem::Source.new(Gem.default_sources[0])
-QUARRY_DIR = File.expand_path(File.join(File.dirname(__FILE__), '..'))
-INDEX_DIR = File.join(QUARRY_DIR, 'index')  # it is where we keep binary packages
-REPO_DB_FILE = File.join(INDEX_DIR, 'quarry.db.tar.xz')
-LASTUPDATE_FILE = File.join(INDEX_DIR, 'lastupdate')
-CONFIG_PKG_DIR = File.join(QUARRY_DIR, 'config.pkg')
-CONFIG_FILE = File.join(QUARRY_DIR, 'config.yaml')
-WORK_DIR = File.join(QUARRY_DIR, 'work')
-WORK_REPO_DIR = File.join(WORK_DIR, 'repo')
-WORK_BUILD_DIR = File.join(WORK_DIR, 'build')
-CHROOT_DIR = File.join(WORK_DIR, 'chroot')
-CHROOT_ROOT_DIR = File.join(CHROOT_DIR, 'root')
-CHROOT_QUARRY_PATH = '/var/quarry-repo' # path to quarry repository inside the chroot
+QUARRY_DIR = File.expand_path(File.join(File.dirname(__FILE__), ".."))
+INDEX_DIR = File.join(QUARRY_DIR, "index")  # it is where we keep binary packages
+REPO_DB_FILE = File.join(INDEX_DIR, "quarry.db.tar.xz")
+LASTUPDATE_FILE = File.join(INDEX_DIR, "lastupdate")
+CONFIG_PKG_DIR = File.join(QUARRY_DIR, "config.pkg")
+CONFIG_FILE = File.join(QUARRY_DIR, "config.yaml")
+WORK_DIR = File.join(QUARRY_DIR, "work")
+WORK_REPO_DIR = File.join(WORK_DIR, "repo")
+WORK_BUILD_DIR = File.join(WORK_DIR, "build")
+CHROOT_DIR = File.join(WORK_DIR, "chroot")
+CHROOT_ROOT_DIR = File.join(CHROOT_DIR, "root")
+CHROOT_QUARRY_PATH = "/var/quarry-repo" # path to quarry repository inside the chroot
 ARCHITECTURE = `uname -m`.strip
 
 GEM_DIR = Gem.default_dir
-GEM_EXTENSION_DIR = File.join(GEM_DIR, 'extensions', Gem::Platform.local.to_s, Gem.extension_api_version)
+GEM_EXTENSION_DIR = File.join(GEM_DIR, "extensions", Gem::Platform.local.to_s, Gem.extension_api_version)
 
 PKGBUILD = %{# Maintainer: Ruby quarry (https://github.com/anatol/quarry)
 
@@ -128,12 +128,12 @@ def load_arch_packages
   `tar xvfJ #{REPO_DB_FILE} -C #{WORK_REPO_DIR}`
 
   result = {} # [name,slot] => [version,pkgver,[depenedncies]]
-  for p in Dir[WORK_REPO_DIR + '/ruby-*']
+  for p in Dir[WORK_REPO_DIR + "/ruby-*"]
     # parse Arch description file
-    desc = IO.readlines(p + '/desc').map(&:strip)
-    arch_name = desc[desc.index('%NAME%') + 1]
-    arch_version = desc[desc.index('%VERSION%') + 1]
-    arch_filename = desc[desc.index('%FILENAME%') + 1]
+    desc = IO.readlines(p + "/desc").map(&:strip)
+    arch_name = desc[desc.index("%NAME%") + 1]
+    arch_version = desc[desc.index("%VERSION%") + 1]
+    arch_filename = desc[desc.index("%FILENAME%") + 1]
 
     key = arch_to_pkg(arch_name)
     fail("Duplicated package exists: #{arch_name}") if result[key]
@@ -145,15 +145,15 @@ def load_arch_packages
       fail("Package #{arch_name} in repository has incorrect version: #{arch_version}")
     end
 
-    if File.exists?(p + '/depends')
-      dependencies = IO.readlines(p + '/depends').map(&:strip)
+    if File.exists?(p + "/depends")
+      dependencies = IO.readlines(p + "/depends").map(&:strip)
     else
       # since pacman 5.0 dependencies merged with 'desc' file
       dependencies = desc
     end
 
-    dependencies = dependencies[dependencies.index('%DEPENDS%') + 1..-1]
-    enddeps = dependencies.index('')
+    dependencies = dependencies[dependencies.index("%DEPENDS%") + 1..-1]
+    enddeps = dependencies.index("")
     dependencies = dependencies[0..enddeps - 1] if enddeps
     dependencies.sort!
 
@@ -171,20 +171,20 @@ def load_arch_packages
 end
 
 def pkg_to_arch(name, slot, with_prefix = true)
-  result = with_prefix ? 'ruby-' : ''
+  result = with_prefix ? "ruby-" : ""
   result += name
-  result += '-' + slot if slot
+  result += "-" + slot if slot
   return result
 end
 
 # String => [name, slot]
 def arch_to_pkg(arch_name)
-  fail("Package name #{arch_name} does not start with ruby- prefix") unless arch_name.start_with?('ruby-')
+  fail("Package name #{arch_name} does not start with ruby- prefix") unless arch_name.start_with?("ruby-")
   name = arch_name[5..-1]
   # check if the name itself exists
   return [name, nil] if @gems_stable[name]
 
-  separator = name.rindex('-')
+  separator = name.rindex("-")
   fail("Cannot find gem for arch package #{arch_name}") unless separator
 
   slot = name[separator + 1..-1]
@@ -198,7 +198,7 @@ end
 # gems that already exist as packages in the official repositories, and should not be built again.
 # This should be accessed via get_official_packages() to ensure it has been initialized.
 def init_official_packages
-  @official_packages = `pacman -Slq extra community | grep ^ruby-`.split(' ').map { |p| arch_to_pkg(p) }
+  @official_packages = `pacman -Slq extra community | grep ^ruby-`.split(" ").map { |p| arch_to_pkg(p) }
 end
 
 def get_official_packages
@@ -212,7 +212,7 @@ def load_packages(packages_file, check_existance = true)
 
   for l in IO.readlines(filename)
     # format either 'package' or 'package,slot'
-    pkg = l.strip.split(',')
+    pkg = l.strip.split(",")
     pkg << nil if pkg.size == 1
     raise "Invalid package version #{l}" unless pkg.size == 2
 
@@ -261,15 +261,15 @@ def dependency_to_slot(dep)
   # if required version is already the last version, then we don't need a versioned dependency
   return nil unless next_version
 
-  slot = ''
-  v1 = required_version.split('.')
-  v2 = next_version.split('.')
+  slot = ""
+  v1 = required_version.split(".")
+  v2 = next_version.split(".")
   v1.zip(v2).each do |p1, p2|
     fail("Cannot generate arch name for dependency #{dep}") unless p1
     slot += p1
 
     if p1 == p2
-      slot += '.'
+      slot += "."
     else
       break
     end
@@ -283,7 +283,7 @@ def slot_to_version(name, slot)
   index = prerelease_version?(slot) ? @gems_beta : @gems_stable
   versions = index[name]
   fail("Cannot find gem name for [#{name},#{slot}]") unless versions
-  versions = versions.select { |v| v == slot or v.start_with?(slot + '.') } if slot
+  versions = versions.select { |v| v == slot or v.start_with?(slot + ".") } if slot
   fail("Cannot find version for [#{name},#{slot}]") if versions.empty?
 
   for version in versions.reverse
@@ -302,7 +302,7 @@ def gem_exists(name, version)
 end
 
 def ignored_packages
-  pkgs = @config['ignored_packages'] if @config
+  pkgs = @config["ignored_packages"] if @config
   pkgs = [] if pkgs.nil?
 
   pkgs.map { |p| [p, nil] }
@@ -324,19 +324,19 @@ def init
   FileUtils.mkpath(CHROOT_DIR)
 
   unless File.exists?(CHROOT_ROOT_DIR)
-    user = ENV['USER']
+    user = ENV["USER"]
 
     # Remove possible cache files left from previous build
     `sudo rm -f /var/cache/pacman/pkg/ruby-*`
 
     `mkarchroot -C /usr/share/devtools/pacman-extra.conf -M /usr/share/devtools/makepkg-#{ARCHITECTURE}.conf #{CHROOT_ROOT_DIR} base-devel ruby`
-    pacman_conf = File.join(CHROOT_ROOT_DIR, 'etc', 'pacman.conf')
+    pacman_conf = File.join(CHROOT_ROOT_DIR, "etc", "pacman.conf")
     `sudo sh -c 'chmod o+w #{pacman_conf}'`
 
-    open(pacman_conf, 'a') { |f|
-      f.puts '[quarry]'
+    open(pacman_conf, "a") { |f|
+      f.puts "[quarry]"
       f.puts "Server = file://#{CHROOT_QUARRY_PATH}"
-      f.puts '[options]'
+      f.puts "[options]"
       f.puts "CacheDir = #{CHROOT_QUARRY_PATH}"
     }
 
@@ -386,10 +386,10 @@ end
 def find_license_files(spec)
   # find files called COPYING or LICENSE in the root directory
   license_files = spec.files.select do |f|
-    next false if f.index('/')
-    next true if f.downcase.index('license')
-    next true if f.downcase.index('copying')
-    next true if f.downcase.index('copyright')
+    next false if f.index("/")
+    next true if f.downcase.index("license")
+    next true if f.downcase.index("copying")
+    next true if f.downcase.index("copyright")
     false
   end
 
@@ -400,8 +400,8 @@ end
 def licenses(spec)
   spec.licenses.map { |l|
     case l
-    when 'Apache 2.0' then 'Apache'
-    when 'Apache-2.0' then 'Apache'
+    when "Apache 2.0" then "Apache"
+    when "Apache-2.0" then "Apache"
     else l
     end
   }
@@ -412,16 +412,16 @@ def calculate_preserved_dirs(spec, config)
   # full_require_paths contains absolute path like "/usr/lib/ruby/gems/2.4.0/gems/bson_ext-1.12.5/ext/bson_ext"
   required = spec.full_require_paths.reject { |p| not p.start_with?(gem_dir) }.map { |p| p[gem_dir.length + 1..-1] }
 
-  if config and config['include']
-    dup = required & config['include'] # directories come both from gemspec and config
+  if config and config["include"]
+    dup = required & config["include"] # directories come both from gemspec and config
     puts "Following directories already included by gemspec: #{dup}" unless dup.empty?
-    required += config['include']
+    required += config["include"]
   end
 
-  if config and config['exclude']
-    nodir = config['exclude'] - required # directories asked to exclude but do not exist
+  if config and config["exclude"]
+    nodir = config["exclude"] - required # directories asked to exclude but do not exist
     puts "Following directories asked to exlude but they do not exists: #{nodir}" unless nodir.empty?
-    required -= config['exclude']
+    required -= config["exclude"]
   end
 
   return required
@@ -435,8 +435,8 @@ def generate_dependency_list(spec, config)
                    pkg_to_arch(d.name, s)
                  }
 
-  if config and config['depends']
-    dependencies = config['depends'] + dependencies
+  if config and config["depends"]
+    dependencies = config["depends"] + dependencies
   end
 
   return dependencies.sort.uniq
@@ -459,16 +459,16 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   end
   pkgver = existing_pkg[1]
 
-  arch = spec.extensions.empty? ? 'any' : 'i686 x86_64'
+  arch = spec.extensions.empty? ? "any" : "i686 x86_64"
   sha1sum = Digest::SHA1.file(gem_path).hexdigest
   # TODO: if license is not specified in spec, check HEAD spec, check -beta spec
   licenses = licenses(spec).map { |l| Shellwords.escape(l) }
   dependencies = generate_dependency_list(spec, config)
   existing_pkg[2] = dependencies
-  filename_arch = spec.extensions.empty? ? 'any' : ARCHITECTURE
+  filename_arch = spec.extensions.empty? ? "any" : ARCHITECTURE
   bin_filename = "#{arch_name}-#{version}-#{pkgver}-#{filename_arch}.pkg.tar.xz"
 
-  patch_file = check_pkg_file(name, slot, 'patch')
+  patch_file = check_pkg_file(name, slot, "patch")
   patch_sha = Digest::SHA1.file(patch_file).hexdigest if patch_file
 
   preserve_dirs = calculate_preserved_dirs(spec, config)
@@ -484,23 +484,23 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
     end
   end
 
-  optdepends = (config and config['optdepends'])
-  makedepends = (config and config['makedepends'])
-  rename = (config and config['rename'])
-  gem_install_args = (config and config['gem_install_args'])
+  optdepends = (config and config["optdepends"])
+  makedepends = (config and config["makedepends"])
+  rename = (config and config["rename"])
+  gem_install_args = (config and config["gem_install_args"])
 
   # TOTHINK: install binaries into directory other than /usr/bin?
   params = {
     gem_name: name,
-    slot: slot ? '-' + slot : '',
+    slot: slot ? "-" + slot : "",
     pkgver: version,
     pkgrel: pkgver,  # if existing version has the same version then +1 here
     website: Shellwords.escape(spec.homepage),
     description: Shellwords.escape(spec.summary),
-    license: licenses.join(', '),
+    license: licenses.join(", "),
     arch: arch,
     sha1sum: sha1sum,
-    depends: dependencies.join(' '),
+    depends: dependencies.join(" "),
     license_files: find_license_files(spec),
     preserve_dirs: preserve_dirs,
     remove_binaries: remove_binaries,
@@ -523,7 +523,7 @@ def slot_ledder(slot)
   return [] unless slot
 
   result = []
-  while ind = slot.rindex('.')
+  while ind = slot.rindex(".")
     result << slot
     slot = slot[0..ind - 1]
   end
@@ -533,16 +533,16 @@ end
 
 def check_pkg_file(name, slot, ext)
   slot_ledder(slot).each do |s|
-    config_name = File.join(CONFIG_PKG_DIR, name + '-' + s + '.' + ext)
+    config_name = File.join(CONFIG_PKG_DIR, name + "-" + s + "." + ext)
     return config_name if File.exists?(config_name)
   end
-  config_name = File.join(CONFIG_PKG_DIR, name + '.' + ext)
+  config_name = File.join(CONFIG_PKG_DIR, name + "." + ext)
   return config_name if File.exists?(config_name)
   return nil
 end
 
 def load_config_file(name, slot)
-  config_name = check_pkg_file(name, slot, 'yaml')
+  config_name = check_pkg_file(name, slot, "yaml")
   config_name ? YAML.load(IO.read(config_name)) : nil
 end
 
@@ -560,16 +560,16 @@ def build_package(name, slot, existing_pkg)
   config = load_config_file(name, slot)
   pkgbuild, gem_path, bin_filename = generate_pkgbuild(name, slot, existing_pkg, config)
   Dir.chdir(work_dir) {
-    IO.write('PKGBUILD', pkgbuild)
-    FileUtils.cp(gem_path, '.')
-    patch_file = check_pkg_file(name, slot, 'patch')
-    FileUtils.cp(patch_file, 'patch') if patch_file
+    IO.write("PKGBUILD", pkgbuild)
+    FileUtils.cp(gem_path, ".")
+    patch_file = check_pkg_file(name, slot, "patch")
+    FileUtils.cp(patch_file, "patch") if patch_file
 
     system "makechrootpkg -D #{INDEX_DIR}:#{CHROOT_QUARRY_PATH} -c -r #{CHROOT_DIR}"
     fail("The binary package was not built: #{bin_filename}") unless File.exists?(bin_filename)
     `gpg --batch -b #{bin_filename}`
     FileUtils.mv(bin_filename, INDEX_DIR)
-    FileUtils.mv(bin_filename + '.sig', INDEX_DIR)
+    FileUtils.mv(bin_filename + ".sig", INDEX_DIR)
   }
 
   `repo-add -s #{REPO_DB_FILE} #{File.join(INDEX_DIR, bin_filename)}`
