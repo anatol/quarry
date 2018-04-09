@@ -1,4 +1,0 @@
-depends:
- - vte
-makedepends:
- - ruby-native-package-installer
