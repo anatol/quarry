@@ -182,7 +182,7 @@ def arch_to_pkg(arch_name)
   fail("Package name #{arch_name} does not start with ruby- prefix") unless arch_name.start_with?("ruby-")
   name = arch_name[5..-1]
   # check if the name itself exists
-  return [name, nil] if @gems_stable[name]
+  return [name, nil] if slot_versions(name, nil)
 
   separator = name.rindex("-")
   fail("Cannot find gem for arch package #{arch_name}") unless separator
@@ -190,8 +190,7 @@ def arch_to_pkg(arch_name)
   slot = name[separator + 1..-1]
   name = name[0..separator - 1]
 
-  index = prerelease_version?(slot) ? @gems_beta : @gems_stable
-  fail("Cannot find gem with name #{name} for arch package #{arch_name}") unless index[name]
+  fail("Cannot find gem with name #{name} for arch package #{arch_name}") unless slot_versions(name, slot)
   return [name, slot]
 end
 
@@ -278,10 +277,19 @@ def dependency_to_slot(dep)
   return slot
 end
 
+def slot_versions(name, slot)
+  prerelease = prerelease_version?(slot)
+
+  if not prerelease and @gems_stable[name]
+    return @gems_stable[name]
+  else
+    return @gems_beta[name]
+  end
+end
+
 # Return latest gem index version that matches package slot
 def slot_to_version(name, slot)
-  index = prerelease_version?(slot) ? @gems_beta : @gems_stable
-  versions = index[name]
+  versions = slot_versions(name, slot)
   fail("Cannot find gem name for [#{name},#{slot}]") unless versions
   versions = versions.select { |v| v == slot or v.start_with?(slot + ".") } if slot
   fail("Cannot find version for [#{name},#{slot}]") if versions.empty?
