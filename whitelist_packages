@@ -4,6 +4,7 @@ archive-tar-minitar
 arel
 aruba
 asciidoctor
+asciidoctor-pdf
 aws-sdk
 aws-sdk-core
 aws-sdk-resources
@@ -41,8 +42,8 @@ coffee-rails,4.0
 colored
 commonmarker
 compass
-configure-s3-website
 config_curator
+configure-s3-website
 creole
 curb
 curses
