@@ -122,8 +122,15 @@ image_optim
 ipaddress
 jbuilder
 jekyll
+jekyll-admin
 jekyll-archives
+jekyll-commonmark
+jekyll-compose
 jekyll-feed
+jekyll-gist
+jekyll-import
+jekyll-paginate-v2
+jekyll-redirect-from
 jekyll-seo-tag
 jekyll-sitemap
 jira4r
