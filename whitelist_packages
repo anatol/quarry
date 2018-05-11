@@ -245,6 +245,7 @@ sanitize
 sass-rails
 sdoc
 seed-fu
+sensu
 sequel
 shog-build
 shoulda
