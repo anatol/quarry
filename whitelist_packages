@@ -48,6 +48,7 @@ configure-s3-website
 creole
 curb
 curses
+dalli
 dashing
 deep_merge
 delayed_job
