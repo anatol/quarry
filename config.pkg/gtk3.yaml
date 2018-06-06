@@ -1,5 +1,8 @@
 depends:
  - gtk3
  - gobject-introspection
+ - ruby-cairo
+ - ruby-gobject-introspection
 makedepends:
  - ruby-native-package-installer
+ - ruby-glib2

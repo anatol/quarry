@@ -3,3 +3,4 @@ depends:
 makedepends:
  - ruby-native-package-installer
  - ruby-rake
+ - ruby-pkg-config
