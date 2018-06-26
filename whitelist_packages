@@ -105,6 +105,7 @@ gollum
 gpgme
 gtk3
 guard
+guard-rake
 hanami
 hanami-model
 hashicorp-checkpoint
