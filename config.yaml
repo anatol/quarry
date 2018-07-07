@@ -1,1 +1,2 @@
 ignored_packages:
+  - libv8
