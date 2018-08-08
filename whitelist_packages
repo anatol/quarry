@@ -54,6 +54,7 @@ deep_merge
 delayed_job
 discourse-qunit-rails
 discourse_fastimage
+dory
 dotenv
 droxi
 em-handlersocket
