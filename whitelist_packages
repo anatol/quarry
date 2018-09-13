@@ -212,6 +212,7 @@ rack-mount
 rack-protection
 rails
 rails,4
+rails_best_practices
 rails_multisite
 rake
 rb-gsl
