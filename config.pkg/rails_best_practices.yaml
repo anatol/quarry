@@ -1,0 +1,2 @@
+include:
+  - rails_best_practices.yml
