@@ -199,6 +199,7 @@ papertrail
 passenger
 pastel
 pg
+protobuf
 pry
 pry-nav
 pry-rails
