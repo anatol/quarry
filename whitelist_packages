@@ -150,6 +150,8 @@ liquid
 listen
 log4r
 logster
+lolcommits
+lolcommits-twitter
 lru_redux
 mail
 memory_profiler
