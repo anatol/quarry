@@ -1,2 +1,6 @@
-# workaround for https://github.com/hyperic/sigar/issues/60
-gem_install_args: -- --with-cppflags="-fgnu89-inline"
+depends:
+  - libtirpc
+# workaround for:
+#   https://github.com/hyperic/sigar/issues/60
+#   https://github.com/hyperic/sigar/issues/119
+gem_install_args: -- --with-cppflags="-fgnu89-inline -I/usr/include/tirpc" --with-ldflags="-ltirpc"
