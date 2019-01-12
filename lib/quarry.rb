@@ -52,10 +52,10 @@ sha1sums=('<%= sha1sum %>'
 prepare() {
 <% if patch_sha then %>
   gem unpack $_gemname-$pkgver.gem
-  gem spec $_gemname-$pkgver.gem --ruby > $_gemname.gemspec
+  gem spec $_gemname-$pkgver.gem --ruby > $_gemname-$pkgver/$_gemname.gemspec
   cd $_gemname-$pkgver
   patch -p1 < ../patch
-  gem build ../$_gemname.gemspec
+  gem build $_gemname.gemspec
   mv $_gemname-$pkgver.gem ..
   cd ..
 <% end %>
