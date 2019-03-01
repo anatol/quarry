@@ -260,6 +260,7 @@ sidekiq
 sidekiq-statistic
 simple-rss
 sinatra
+solargraph
 spork-rails
 spring
 spring-watcher-listen
