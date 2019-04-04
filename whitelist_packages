@@ -238,6 +238,7 @@ rspec
 rspec-html-matchers
 rspec-puppet-facts
 rspec-rails
+rspotify
 rtlit
 rubocop
 ruby-beautify
