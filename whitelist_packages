@@ -17,6 +17,7 @@ better_errors
 binding_of_caller
 blankslate
 bluecloth
+bootsnap
 bourbon
 bropages
 bullet
@@ -36,6 +37,7 @@ chef
 chef-server
 chef-zero
 chefspec
+chromedriver-helper
 chronic
 coderay
 coffee-rails
@@ -301,6 +303,7 @@ watir-webdriver
 wdm
 web-console
 web-console,2
+webdrivers
 webgen
 webmock
 wikicloth
