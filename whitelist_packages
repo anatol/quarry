@@ -10,6 +10,7 @@ aws-sdk
 aws-sdk-core
 aws-sdk-resources
 aws-sigv4
+azure_sdk
 babel-transpiler
 barber
 bcrypt
