@@ -1,2 +1,3 @@
 ignored_packages:
   - mini_racer
+  - rmagick # https://github.com/rmagick/rmagick/issues/256
