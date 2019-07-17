@@ -1,3 +1,4 @@
 ignored_packages:
   - mini_racer
   - rmagick # https://github.com/rmagick/rmagick/issues/256
+  - azure_sdk # for some reason it depends on azure_mgmt_cosmosdb~>0.18.0 that is not published yet
