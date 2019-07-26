@@ -245,6 +245,7 @@ rspotify
 rtlit
 rubocop
 rubocop-performance
+rubocop-rails
 ruby-beautify
 ruby-debug-ide
 ruby-elf
