@@ -246,6 +246,7 @@ rtlit
 rubocop
 rubocop-performance
 rubocop-rails
+rubocop-rspec
 ruby-beautify
 ruby-debug-ide
 ruby-elf
