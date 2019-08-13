@@ -237,7 +237,7 @@ def matches_ruby(name, version)
   return rrv.satisfied_by? Gem.ruby_version
 end
 
-def dependency_to_slot(dep)
+def dependency_to_slot(spec, dep)
   index = @gems_stable
   all_versions = index[dep.name]
 
@@ -249,7 +249,7 @@ def dependency_to_slot(dep)
     all_versions = index[dep.name]
     required_ind = all_versions.rindex { |v| dep.requirement.satisfied_by?(Gem::Version.new(v)) and matches_ruby(dep.name, v) }
   end
-  fail("Cannot resolve package dependency: #{dep}") unless required_ind
+  fail("Cannot resolve package dependency for #{spec.to_s}: #{dep}") unless required_ind
 
   required_version = all_versions[required_ind]
   next_version = all_versions[required_ind + 1]
@@ -439,7 +439,7 @@ def generate_dependency_list(spec, config)
   dependencies = %w(ruby) +
                  spec.runtime_dependencies
                      .map { |d|
-                   s = dependency_to_slot(d)
+                   s = dependency_to_slot(spec, d)
                    pkg_to_arch(d.name, s)
                  }
 
@@ -591,7 +591,7 @@ def build_packages(packages_to_generate, existing_packages)
     spec = package_spec(pkg[0], version)
     upfront_deps = [] # packages should be processed before 'pkg'
     for d in spec.runtime_dependencies
-      s = dependency_to_slot(d)
+      s = dependency_to_slot(spec, d)
       key = [d.name, s]
 
       next if get_official_packages.include?(key)
