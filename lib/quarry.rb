@@ -313,7 +313,11 @@ def ignored_packages
   pkgs = @config["ignored_packages"] if @config
   pkgs = [] if pkgs.nil?
 
-  pkgs.map { |p| [p, nil] }
+  pkgs.map { |p|
+    pkg = p.strip.split(",")
+    pkg << nil if pkg.size == 1
+    pkg
+  }
 end
 
 def init
