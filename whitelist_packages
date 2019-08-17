@@ -310,6 +310,7 @@ web-console,2
 webdrivers
 webgen
 webmock
+webpacker
 wikicloth
 wikitext
 winrm-fs
