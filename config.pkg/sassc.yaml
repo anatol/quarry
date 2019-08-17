@@ -1,0 +1,2 @@
+include:
+  - ext/libsass/lib/libsass.so
