@@ -42,7 +42,6 @@ chromedriver-helper
 chronic
 coderay
 coffee-rails
-coffee-rails,4.0
 colored
 commonmarker
 compass
@@ -217,7 +216,7 @@ rack-mini-profiler
 rack-mount
 rack-protection
 rails
-rails,4
+rails,5
 rails_best_practices
 rails_multisite
 rake
