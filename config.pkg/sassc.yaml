@@ -1,2 +1,2 @@
 include:
-  - ext/libsass/lib/libsass.so
+  - ext/libsass.so
