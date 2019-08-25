@@ -18,7 +18,6 @@ WORK_REPO_DIR = File.join(WORK_DIR, "repo")
 WORK_BUILD_DIR = File.join(WORK_DIR, "build")
 CHROOT_DIR = File.join(WORK_DIR, "chroot")
 CHROOT_ROOT_DIR = File.join(CHROOT_DIR, "root")
-CHROOT_QUARRY_PATH = "/var/quarry-repo" # path to quarry repository inside the chroot
 ARCHITECTURE = `uname -m`.strip
 
 GEM_DIR = Gem.default_dir
@@ -341,19 +340,16 @@ def init
     # Remove possible cache files left from previous build
     `sudo rm -f /var/cache/pacman/pkg/ruby-*`
 
-    `mkarchroot -C /usr/share/devtools/pacman-extra.conf -M /usr/share/devtools/makepkg-#{ARCHITECTURE}.conf #{CHROOT_ROOT_DIR} base-devel ruby`
-    pacman_conf = File.join(CHROOT_ROOT_DIR, "etc", "pacman.conf")
-    `sudo sh -c 'chmod o+w #{pacman_conf}'`
-
+    pacman_conf = WORK_DIR + "/pacman.conf"
+    FileUtils.cp("/usr/share/devtools/pacman-extra.conf", pacman_conf)
     open(pacman_conf, "a") { |f|
       f.puts "[quarry]"
-      f.puts "Server = file://#{CHROOT_QUARRY_PATH}"
-      f.puts "[options]"
-      f.puts "CacheDir = #{CHROOT_QUARRY_PATH}"
+      f.puts "Server = file://#{INDEX_DIR}"
     }
-
-    sync_chroot_repo
+    `mkarchroot -C #{pacman_conf} -M /usr/share/devtools/makepkg-#{ARCHITECTURE}.conf #{CHROOT_ROOT_DIR} base-devel ruby`
   end
+
+  sync_chroot_repo
 
   @config = YAML.load(IO.read(CONFIG_FILE))
 
@@ -558,8 +554,8 @@ def load_config_file(name, slot)
   config_name ? YAML.load(IO.read(config_name)) : nil
 end
 
-def sync_chroot_repo
-  `sudo systemd-nspawn -q --bind-ro=#{INDEX_DIR}:#{CHROOT_QUARRY_PATH} -D #{CHROOT_ROOT_DIR} pacman -Syu --noconfirm`
+def pacman_sync_chroot
+  `sudo systemd-nspawn -q --bind-ro=#{INDEX_DIR} -D #{CHROOT_ROOT_DIR} pacman -Syu --noconfirm`
 end
 
 # generates PKGBUILD, builds binary package for it, copies to index directory and adds it to the Arch repository
@@ -577,7 +573,7 @@ def build_package(name, slot, existing_pkg)
     patch_file = check_pkg_file(name, slot, "patch")
     FileUtils.cp(patch_file, "patch") if patch_file
 
-    system "makechrootpkg -D #{INDEX_DIR}:#{CHROOT_QUARRY_PATH} -c -r #{CHROOT_DIR}"
+    system("makechrootpkg -c -r #{CHROOT_DIR}")
     fail("The binary package was not built: #{bin_filename}") unless File.exists?(bin_filename)
     `gpg --batch -b #{bin_filename}`
     FileUtils.mv(bin_filename, INDEX_DIR)
