@@ -1,4 +1,3 @@
 ignored_packages:
   - mini_racer
   - rmagick # https://github.com/rmagick/rmagick/issues/256
-  - rest-client,1.6 # this is a weird release that does not have upstream traces, it also depends on http-cookie-tool gem that does not exist at rubygems.org
