@@ -349,8 +349,6 @@ def init
     `mkarchroot -C #{pacman_conf} -M /usr/share/devtools/makepkg-#{ARCHITECTURE}.conf #{CHROOT_ROOT_DIR} base-devel ruby`
   end
 
-  sync_chroot_repo
-
   @config = YAML.load(IO.read(CONFIG_FILE))
 
   init_official_packages
@@ -621,11 +619,9 @@ def build_packages(packages_to_generate, existing_packages)
     next if get_official_packages.include?(pkg)
 
     existing_packages[pkg] = {} unless existing_packages[pkg] # create a stub for the existing package
+    pacman_sync_chroot
     build_package(*pkg, existing_packages[pkg])
     repo_modified = true
-
-    # sync to chroot as the next package might require this update
-    sync_chroot_repo
   end
 
   if repo_modified
