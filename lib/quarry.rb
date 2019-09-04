@@ -125,6 +125,7 @@ def load_arch_packages
   return {} unless File.exists?(REPO_DB_FILE)
 
   `tar xvfJ #{REPO_DB_FILE} -C #{WORK_REPO_DIR}`
+  raise unless $?.success?
 
   result = {} # [name,slot] => [version,pkgver,[depenedncies]]
   for p in Dir[WORK_REPO_DIR + "/ruby-*"]
@@ -197,6 +198,7 @@ end
 # This should be accessed via get_official_packages() to ensure it has been initialized.
 def init_official_packages
   @official_packages = `pacman -Slq extra community | grep ^ruby-`.split(" ").map { |p| arch_to_pkg(p) }
+  raise unless $?.success?
 end
 
 def get_official_packages
@@ -326,6 +328,7 @@ def init
   unless File.directory?(INDEX_DIR)
     FileUtils.mkdir(INDEX_DIR)
     `repo-add -s #{REPO_DB_FILE} 2>&1`
+    raise unless $?.success?
   end
 
   FileUtils.rm_rf(WORK_REPO_DIR)
@@ -339,6 +342,7 @@ def init
 
     # Remove possible cache files left from previous build
     `sudo rm -f /var/cache/pacman/pkg/ruby-*`
+    raise unless $?.success?
 
     pacman_conf = WORK_DIR + "/pacman.conf"
     FileUtils.cp("/usr/share/devtools/pacman-extra.conf", pacman_conf)
@@ -347,6 +351,7 @@ def init
       f.puts "Server = file://#{INDEX_DIR}"
     }
     `mkarchroot -C #{pacman_conf} -M /usr/share/devtools/makepkg-#{ARCHITECTURE}.conf #{CHROOT_ROOT_DIR} base-devel ruby`
+    raise unless $?.success?
   end
 
   @config = YAML.load(IO.read(CONFIG_FILE))
@@ -554,6 +559,7 @@ end
 
 def pacman_sync_chroot
   `sudo systemd-nspawn -q --bind-ro=#{INDEX_DIR} -D #{CHROOT_ROOT_DIR} pacman -Syu --noconfirm`
+  raise unless $?.success?
 end
 
 # generates PKGBUILD, builds binary package for it, copies to index directory and adds it to the Arch repository
@@ -574,11 +580,13 @@ def build_package(name, slot, existing_pkg)
     system("makechrootpkg -c -r #{CHROOT_DIR}")
     fail("The binary package was not built: #{bin_filename}") unless File.exists?(bin_filename)
     `gpg --batch -b #{bin_filename}`
+    raise unless $?.success?
     FileUtils.mv(bin_filename, INDEX_DIR)
     FileUtils.mv(bin_filename + ".sig", INDEX_DIR)
   }
 
   `repo-add -s #{REPO_DB_FILE} #{File.join(INDEX_DIR, bin_filename)}`
+  raise unless $?.success?
 end
 
 def build_packages(packages_to_generate, existing_packages)
@@ -633,5 +641,7 @@ end
 
 def sync_repo_to(dest)
   `rsync -avz --delete --exclude quarry.db.tar.xz.old --exclude quarry.files.tar.xz.old #{INDEX_DIR}/ #{dest}/x86_64/`
+  raise unless $?.success?
   `scp #{LASTUPDATE_FILE} #{dest}/`
+  raise unless $?.success?
 end
