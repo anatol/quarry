@@ -16,6 +16,7 @@ barber
 bcrypt
 better_errors
 binding_of_caller
+bitcoin-ruby
 blankslate
 bluecloth
 bootsnap
