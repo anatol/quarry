@@ -19,4 +19,4 @@ packages_to_generate.uniq!
 
 repo_modified = build_packages(packages_to_generate, existing_packages)
 
-sync_repo_to("celestia:packages/quarry/") if repo_modified
+sync_repo_to("pkgbuild.com:public_html/quarry/") if repo_modified
