@@ -57,6 +57,7 @@ deep_merge
 delayed_job
 discourse-qunit-rails
 discourse_fastimage
+docopt
 dory
 dotenv
 droxi
