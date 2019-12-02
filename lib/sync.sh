@@ -2,4 +2,4 @@
 
 dir=`dirname $0`
 
-rsync -av --delete celestia:packages/quarry/x86_64/ "$dir"/../index/
+rsync -av --delete pkgbuild.com:public_html/quarry/x86_64/ "$dir"/../index/
