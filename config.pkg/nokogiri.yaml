@@ -1,2 +1,4 @@
+gem_install_args: -- --use-system-libraries
 depends:
   - xz
+  - libxslt
