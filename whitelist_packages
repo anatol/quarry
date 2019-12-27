@@ -108,6 +108,7 @@ github_api
 god
 gollum
 gpgme
+grpc
 gtk3
 guard
 guard-rake
