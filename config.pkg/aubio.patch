@@ -1,0 +1,25 @@
+From 5c0a96e9cc837b7ffdec430e6d39215ec93b3995 Mon Sep 17 00:00:00 2001
+From: Glen Pike <github@glenpike.co.uk>
+Date: Wed, 10 Jul 2019 00:37:15 +0100
+Subject: [PATCH] Fix hardcoded lib path
+
+Use example from legacy api file - was throwing an error when running Sonic Pi against gems installed in system (rather than vendor)
+---
+ lib/aubio/aubio-ffi.rb | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/lib/aubio/aubio-ffi.rb b/lib/aubio/aubio-ffi.rb
+index 012419b..b5d64a9 100644
+--- a/lib/aubio/aubio-ffi.rb
++++ b/lib/aubio/aubio-ffi.rb
+@@ -4,7 +4,9 @@
+ 
+ module Aubio::Api
+   extend FFI::Library
+-  ffi_lib "/usr/local/Cellar/aubio/0.4.4/lib/libaubio.dylib"
++  lib_paths = Array(ENV["AUBIO_LIB"] || Dir["/{opt,usr}/{,local/}{lib,lib64,Cellar/aubio**}/libaubio.{*.dylib,so.*}"])
++  fallback_names = %w(libaubio.4.2.2.dylib libaubio.so.1 aubio1.dll)
++  ffi_lib(lib_paths + fallback_names)
+ 
+   def self.attach_function(name, *_)
+     begin; super; rescue FFI::NotFoundError => e
