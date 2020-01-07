@@ -169,9 +169,22 @@ def load_arch_packages
 end
 
 def pkg_to_arch(name, slot, with_prefix = true)
+  if aliases = @config["package_aliases"]
+    # some [community] packages do not follow standard convention so we need to alias them properly
+    # note that arch_to_pkg() does not need such exception. arch_to_pkg() is used for quarry packages only
+    # and all quarry packages follow the naming convention.
+
+    alias_name = name
+    alias_name += "," + slot if slot
+    if result = aliases[alias_name]
+      return result
+    end
+  end
+
   result = with_prefix ? "ruby-" : ""
   result += name
   result += "-" + slot if slot
+
   return result
 end
 
@@ -197,6 +210,8 @@ end
 def init_official_packages
   @official_packages = `pacman -Slq extra community | grep ^ruby-`.split(" ").map { |p| arch_to_pkg(p) }
   raise unless $?.success?
+
+  @official_packages += @config["package_aliases"].keys.map { |k| [k, nil] } # TODO: handle slot for aliases as well
 end
 
 def get_official_packages
