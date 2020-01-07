@@ -1,2 +1,4 @@
 depends:
   - libidn
+exclude:
+  - lib # lib is included by default but this gem does not have such dir
