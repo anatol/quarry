@@ -48,7 +48,7 @@ end
 
 # 2. Find all packages in index directory that are not present in repo (i.e. old versions)
 all_files = existing_packages.values.map { |v| [v[3], v[3] + ".sig"] }.flatten
-Dir[INDEX_DIR + "/*.pkg.tar.xz{,.sig}"].sort.each { |f|
+Dir[INDEX_DIR + "/*.pkg.tar.zst{,.sig}"].sort.each { |f|
   name = File.basename(f)
 
   puts " rm #{name}" unless all_files.include?(name)

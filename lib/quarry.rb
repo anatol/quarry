@@ -479,7 +479,7 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
   dependencies = generate_dependency_list(spec, config)
   existing_pkg[2] = dependencies
   filename_arch = spec.extensions.empty? ? "any" : ARCHITECTURE
-  bin_filename = "#{arch_name}-#{version}-#{pkgver}-#{filename_arch}.pkg.tar.xz"
+  bin_filename = "#{arch_name}-#{version}-#{pkgver}-#{filename_arch}.pkg.tar.zst"
 
   patch_file = check_pkg_file(name, slot, "patch")
   patch_sha = Digest::SHA1.file(patch_file).hexdigest if patch_file
