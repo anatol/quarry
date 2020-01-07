@@ -1,0 +1,2 @@
+# add empty config to avoid including 'data' directory from the latest versions
+include:
