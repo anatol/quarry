@@ -3,4 +3,4 @@ depends:
 makedepends:
  - ruby-native-package-installer
 include:
- - ext
+ - ext # this directory contains build scripts used by other glib* gems
