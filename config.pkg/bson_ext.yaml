@@ -1,0 +1,2 @@
+exclude:
+  - ext/bson_ext # remove this dir mentioned in the gemspec, extension is in separate directory now
