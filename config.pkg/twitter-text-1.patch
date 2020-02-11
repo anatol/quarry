@@ -1,0 +1,13 @@
+diff --git a/twitter-text.gemspec b/twitter-text.gemspec
+index bff0d74..7dc8808 100644
+--- a/twitter-text.gemspec
++++ b/twitter-text.gemspec
+33c33
+<     s.add_runtime_dependency(%q<unf>.freeze, ["~> 0.1.0"])
+---
+>     s.add_runtime_dependency(%q<unf>.freeze, [">= 0"])
+42c42
+<     s.add_dependency(%q<unf>.freeze, ["~> 0.1.0"])
+---
+>     s.add_dependency(%q<unf>.freeze, [">= 0"])
+
