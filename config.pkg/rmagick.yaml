@@ -1,5 +1,4 @@
 depends:
-  # rmagick does not work with ImageMagick v7 https://github.com/rmagick/rmagick/issues/267
-  - libmagick6
+  - libmagick
 makedepends:
-  - imagemagick6
+  - imagemagick
