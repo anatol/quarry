@@ -122,8 +122,7 @@ end
 def load_arch_packages
   return {} unless File.exists?(REPO_DB_FILE)
 
-  `tar xvfJ #{REPO_DB_FILE} -C #{WORK_REPO_DIR}`
-  raise unless $?.success?
+  raise unless system("tar xfJ #{REPO_DB_FILE} -C #{WORK_REPO_DIR}")
 
   result = {} # [name,slot] => [version,pkgver,[depenedncies]]
   for p in Dir[WORK_REPO_DIR + "/ruby-*"]
@@ -340,8 +339,7 @@ def init
 
   unless File.directory?(INDEX_DIR)
     FileUtils.mkdir(INDEX_DIR)
-    `repo-add -s #{REPO_DB_FILE} 2>&1`
-    raise unless $?.success?
+    raise unless system("repo-add -s #{REPO_DB_FILE} 2>&1")
   end
 
   FileUtils.rm_rf(WORK_REPO_DIR)
@@ -354,8 +352,7 @@ def init
     user = ENV["USER"]
 
     # Remove possible cache files left from previous build
-    `sudo rm -f /var/cache/pacman/pkg/ruby-*`
-    raise unless $?.success?
+    raise unless system("sudo rm -f /var/cache/pacman/pkg/ruby-*")
 
     pacman_conf = WORK_DIR + "/pacman.conf"
     FileUtils.cp("/usr/share/devtools/pacman-extra.conf", pacman_conf)
@@ -363,8 +360,7 @@ def init
       f.puts "[quarry]"
       f.puts "Server = file://#{INDEX_DIR}"
     }
-    `mkarchroot -C #{pacman_conf} -M /usr/share/devtools/makepkg-#{ARCHITECTURE}.conf #{CHROOT_ROOT_DIR} base-devel ruby`
-    raise unless $?.success?
+    raise unless system("mkarchroot -C #{pacman_conf} -M /usr/share/devtools/makepkg-#{ARCHITECTURE}.conf #{CHROOT_ROOT_DIR} base-devel ruby")
   end
 
   @config = YAML.load(IO.read(CONFIG_FILE))
@@ -575,8 +571,7 @@ def load_config_file(name, slot)
 end
 
 def pacman_sync_chroot
-  `sudo systemd-nspawn -q --bind-ro=#{INDEX_DIR} -D #{CHROOT_ROOT_DIR} pacman -Syu --noconfirm`
-  raise unless $?.success?
+  raise unless system("sudo systemd-nspawn -q --bind-ro=#{INDEX_DIR} -D #{CHROOT_ROOT_DIR} pacman -Syu --noconfirm")
 end
 
 # generates PKGBUILD, builds binary package for it, copies to index directory and adds it to the Arch repository
@@ -596,14 +591,12 @@ def build_package(name, slot, existing_pkg)
 
     system("makechrootpkg -c -r #{CHROOT_DIR}")
     fail("The binary package was not built: #{bin_filename}") unless File.exists?(bin_filename)
-    `gpg --batch -b #{bin_filename}`
-    raise unless $?.success?
+    raise unless system("gpg --batch -b #{bin_filename}")
     FileUtils.mv(bin_filename, INDEX_DIR)
     FileUtils.mv(bin_filename + ".sig", INDEX_DIR)
   }
 
-  `repo-add -s #{REPO_DB_FILE} #{File.join(INDEX_DIR, bin_filename)}`
-  raise unless $?.success?
+  raise unless system("repo-add -s #{REPO_DB_FILE} #{File.join(INDEX_DIR, bin_filename)}")
 end
 
 def build_packages(packages_to_generate, existing_packages)
@@ -657,8 +650,6 @@ def build_packages(packages_to_generate, existing_packages)
 end
 
 def sync_repo_to(dest)
-  `rsync -avz --delete --exclude quarry.db.tar.xz.old --exclude quarry.files.tar.xz.old #{INDEX_DIR}/ #{dest}/x86_64/`
-  raise unless $?.success?
-  `scp #{LASTUPDATE_FILE} #{dest}/`
-  raise unless $?.success?
+  raise unless system("rsync -avz --delete --exclude quarry.db.tar.xz.old --exclude quarry.files.tar.xz.old #{INDEX_DIR}/ #{dest}/x86_64/")
+  raise unless system("scp #{LASTUPDATE_FILE} #{dest}/")
 end
