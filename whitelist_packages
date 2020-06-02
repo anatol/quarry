@@ -1,9 +1,9 @@
-kovid
 RedCloth
 annotate
 ansi
 archive-tar-minitar
 arel
+artifactory
 aruba
 asciidoctor
 asciidoctor-pdf
@@ -151,6 +151,7 @@ json
 kbsecret
 knife-azure
 knife-ec2
+kovid
 kramdown-rfc2629
 libv8
 liquid
