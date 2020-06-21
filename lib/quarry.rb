@@ -650,6 +650,6 @@ def build_packages(packages_to_generate, existing_packages)
 end
 
 def sync_repo_to(dest)
-  raise unless system("rsync -avz --delete --exclude quarry.db.tar.xz.old --exclude quarry.files.tar.xz.old #{INDEX_DIR}/ #{dest}/x86_64/")
+  raise unless system("rsync -av -zz --delete --exclude quarry.db.tar.xz.old --exclude quarry.files.tar.xz.old #{INDEX_DIR}/ #{dest}/x86_64/")
   raise unless system("scp #{LASTUPDATE_FILE} #{dest}/")
 end
