@@ -207,6 +207,7 @@ padrino
 papertrail
 passenger
 pastel
+pdk
 pg
 protobuf
 pry
@@ -214,6 +215,7 @@ pry-nav
 pry-rails
 puma
 pundit
+puppet-lint
 puppetlabs_spec_helper
 pygments.rb
 r2
