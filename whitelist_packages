@@ -252,6 +252,7 @@ rspec-rails
 rspotify
 rtlit
 rubocop
+rubocop-graphql
 rubocop-performance
 rubocop-rails
 rubocop-rspec
