@@ -444,7 +444,7 @@ def calculate_preserved_dirs(spec, config)
 
   if config and config["exclude"]
     nodir = config["exclude"] - required # directories asked to exclude but do not exist
-    puts "Following directories asked to exlude but they do not exists: #{nodir}" unless nodir.empty?
+    puts "Following directories asked to exclude but they do not exists: #{nodir}" unless nodir.empty?
     required -= config["exclude"]
   end
 
