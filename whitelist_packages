@@ -6,6 +6,7 @@ arel
 artifactory
 aruba
 asciidoctor
+asciidoctor-diagram
 asciidoctor-pdf
 aws-sdk
 aws-sdk-core
