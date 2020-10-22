@@ -363,6 +363,8 @@ def init
     raise unless system("mkarchroot -C #{pacman_conf} -M /usr/share/devtools/makepkg-#{ARCHITECTURE}.conf #{CHROOT_ROOT_DIR} base-devel ruby")
   end
 
+  pacman_sync_chroot
+
   @config = YAML.load(IO.read(CONFIG_FILE))
 
   init_official_packages
@@ -637,7 +639,7 @@ def build_packages(packages_to_generate, existing_packages)
     next if get_official_packages.include?(pkg)
 
     existing_packages[pkg] = {} unless existing_packages[pkg] # create a stub for the existing package
-    pacman_sync_chroot
+    pacman_sync_chroot  # TODO: here we need to update 'quarry' repo only
     build_package(*pkg, existing_packages[pkg])
     repo_modified = true
   end
