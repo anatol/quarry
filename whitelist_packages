@@ -6,6 +6,7 @@ arel
 artifactory
 aruba
 asciidoctor
+asciidoctor-diagram
 asciidoctor-pdf
 asciidoctor-diagram
 aws-sdk
@@ -146,6 +147,7 @@ jekyll-seo-tag
 jekyll-sitemap
 jira4r
 jmespath
+jose
 jquery-rails
 jquery-ui-rails
 json
