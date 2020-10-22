@@ -7,8 +7,8 @@ artifactory
 aruba
 asciidoctor
 asciidoctor-diagram
+asciidoctor-mathematical
 asciidoctor-pdf
-asciidoctor-diagram
 aws-sdk
 aws-sdk-core
 aws-sdk-resources
