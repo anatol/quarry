@@ -1,0 +1,7 @@
+makedepends:
+ - cmake
+ - python
+ - pango
+ - gdk-pixbuf2
+depends:
+ - cairo
