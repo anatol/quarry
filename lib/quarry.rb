@@ -120,7 +120,7 @@ end
 
 # Load [name,slot] => [version,pkgver,[dependencies],filename] for current packages in Arch index
 def load_arch_packages
-  return {} unless File.exists?(REPO_DB_FILE)
+  return {} unless File.exist?(REPO_DB_FILE)
 
   raise unless system("tar xfJ #{REPO_DB_FILE} -C #{WORK_REPO_DIR}")
 
@@ -142,7 +142,7 @@ def load_arch_packages
       fail("Package #{arch_name} in repository has incorrect version: #{arch_version}")
     end
 
-    if File.exists?(p + "/depends")
+    if File.exist?(p + "/depends")
       dependencies = IO.readlines(p + "/depends").map(&:strip)
     else
       # since pacman 5.0 dependencies merged with 'desc' file
@@ -220,7 +220,7 @@ end
 def load_packages(packages_file, check_existance = true)
   result = []
   filename = File.join(QUARRY_DIR, packages_file)
-  return result unless File.exists?(filename)
+  return result unless File.exist?(filename)
 
   for l in IO.readlines(filename)
     # format either 'package' or 'package,slot'
@@ -348,7 +348,7 @@ def init
   FileUtils.mkpath(WORK_REPO_DIR)
   FileUtils.mkpath(CHROOT_DIR)
 
-  unless File.exists?(CHROOT_ROOT_DIR)
+  unless File.exist?(CHROOT_ROOT_DIR)
     user = ENV["USER"]
 
     # Remove possible cache files left from previous build
@@ -560,10 +560,10 @@ end
 def check_pkg_file(name, slot, ext)
   slot_ledder(slot).each do |s|
     config_name = File.join(CONFIG_PKG_DIR, name + "-" + s + "." + ext)
-    return config_name if File.exists?(config_name)
+    return config_name if File.exist?(config_name)
   end
   config_name = File.join(CONFIG_PKG_DIR, name + "." + ext)
-  return config_name if File.exists?(config_name)
+  return config_name if File.exist?(config_name)
   return nil
 end
 
@@ -592,7 +592,7 @@ def build_package(name, slot, existing_pkg)
     FileUtils.cp(patch_file, "patch") if patch_file
 
     system("makechrootpkg -c -r #{CHROOT_DIR}")
-    fail("The binary package was not built: #{bin_filename}") unless File.exists?(bin_filename)
+    fail("The binary package was not built: #{bin_filename}") unless File.exist?(bin_filename)
     raise unless system("gpg --batch -b #{bin_filename}")
     FileUtils.mv(bin_filename, INDEX_DIR)
     FileUtils.mv(bin_filename + ".sig", INDEX_DIR)
