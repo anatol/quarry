@@ -206,6 +206,7 @@ openid-redis-store
 openpgp
 org-ruby
 origami
+overcommit
 padrino
 papertrail
 passenger
