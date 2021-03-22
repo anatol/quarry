@@ -598,7 +598,7 @@ def build_package(name, slot, existing_pkg)
     FileUtils.mv(bin_filename + ".sig", INDEX_DIR)
   }
 
-  raise unless system("repo-add -s #{REPO_DB_FILE} --include-sigs #{File.join(INDEX_DIR, bin_filename)}")
+  raise unless system("repo-add -s #{REPO_DB_FILE} #{File.join(INDEX_DIR, bin_filename)}")
 end
 
 def build_packages(packages_to_generate, existing_packages)
