@@ -360,7 +360,7 @@ def init
       f.puts "[quarry]"
       f.puts "Server = file://#{INDEX_DIR}"
     }
-    raise unless system("mkarchroot -C #{pacman_conf} -M /usr/share/devtools/makepkg-#{ARCHITECTURE}.conf #{CHROOT_ROOT_DIR} base-devel ruby")
+    raise unless system("mkarchroot -C #{pacman_conf} -c /var/cache/pacman/pkg/ -M /usr/share/devtools/makepkg-#{ARCHITECTURE}.conf #{CHROOT_ROOT_DIR} base-devel ruby")
   end
 
   pacman_sync_chroot
