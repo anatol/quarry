@@ -76,6 +76,7 @@ email_reply_trimmer
 ember-handlebars-template
 ember-rails
 ember-source
+erb
 erubis
 eventmachine
 excon
@@ -223,6 +224,7 @@ puppet-lint
 puppetlabs_spec_helper
 pygments.rb
 r2
+racc
 rack
 rack-cache
 rack-mini-profiler
