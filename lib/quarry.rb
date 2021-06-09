@@ -605,6 +605,11 @@ def build_packages(packages_to_generate, existing_packages)
   repo_modified = false
 
   while pkg = packages_to_generate.last
+    if get_official_packages.include?(pkg)
+      packages_to_generate.pop
+      next
+    end
+
     version = slot_to_version(*pkg)
     spec = package_spec(pkg[0], version)
     upfront_deps = [] # packages should be processed before 'pkg'
