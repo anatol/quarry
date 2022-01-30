@@ -5,6 +5,7 @@ require "pathname"
 require "rubygems/name_tuple"
 require "rubygems/package"
 require "rubygems/remote_fetcher"
+require "yaml"
 
 GEM_SOURCE = Gem::Source.new(Gem.default_sources[0])
 QUARRY_DIR = File.expand_path(File.join(File.dirname(__FILE__), ".."))
