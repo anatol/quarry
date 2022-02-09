@@ -178,6 +178,7 @@ mongo
 mongo_ext
 multi_json
 mustache
+mysql2
 neovim
 net-ldap
 net-ssh
