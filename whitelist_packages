@@ -1,4 +1,5 @@
 RedCloth
+actionpack-xml_parser
 annotate
 ansi
 archive-tar-minitar
@@ -52,6 +53,7 @@ compass
 config_curator
 configure-s3-website
 creole
+csv
 curb
 curses
 dalli
@@ -180,7 +182,10 @@ multi_json
 mustache
 mysql2
 neovim
+net-imap
 net-ldap
+net-pop
+net-smtp
 net-ssh
 nokogiri
 octokit
@@ -239,11 +244,13 @@ rake
 rb-gsl
 rb-inotify
 rb-kqueue
+rbpdf
 rbtrace
 rdiscount
 redis
 redis-namespace
 reek
+request_store
 resque
 rethinkdb
 rinku
@@ -251,6 +258,7 @@ rmagick
 rmmseg-cpp
 ronn
 rotp
+rqrcode
 rsense
 rspec
 rspec-html-matchers
