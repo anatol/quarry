@@ -338,6 +338,29 @@ def init
   @gems_stable = load_gem_index(:released)
   @gems_beta = load_gem_index(:prerelease)
 
+  # WORKAROUND for official gems that were not updated for a long time
+  # any stable version newer than the official package is moved to "beta" index
+  `pacman -Sl extra community | grep '^community ruby-'`.split("\n").each do |p|
+    p = p.split(" ")
+    name = p[1].delete_prefix("ruby-")
+    ver = p[2].split("-")[0]
+
+    puts name, ver
+    puts @gems_stable[name]
+
+    ind = @gems_stable[name].rindex { |v| ver == v and matches_ruby(name, ver) }
+    raise "unable to find stable gem for #{name} #{ver}" unless ind
+    puts ind
+    puts @gems_stable[name][ind...]
+    if @gems_beta[name]
+      @gems_beta[name] += @gems_stable[name][ind...]
+    else
+      @gems_beta[name] = @gems_stable[name][ind...]
+    end
+    @gems_beta[name].sort!
+    @gems_stable[name] = @gems_stable[name][...ind]
+  end
+
   unless File.directory?(INDEX_DIR)
     FileUtils.mkdir(INDEX_DIR)
     raise unless system("repo-add -s #{REPO_DB_FILE} 2>&1")
