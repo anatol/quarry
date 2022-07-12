@@ -211,6 +211,16 @@ def init_official_packages
   @official_packages = `pacman -Slq extra community | grep ^ruby-`.split(" ").map { |p| arch_to_pkg(p) }
   raise unless $?.success?
 
+  @official_packages_versions = {}
+  `pacman -Sl community | grep '^community ruby-'`.split("\n").each do |p|
+    parts = p.split(" ")
+
+    pkg = arch_to_pkg(parts[1])
+    version = parts[2].split("-")[0]
+    @official_packages_versions[pkg] = version
+  end
+  raise unless $?.success?
+
   @official_packages += @config["package_aliases"].keys.map { |k| [k, nil] } # TODO: handle slot for aliases as well
 end
 
@@ -273,6 +283,13 @@ def dependency_to_slot(spec, dep)
 
   # if required version is already the last version, then we don't need a versioned dependency
   return nil unless next_version
+
+  # WORKAROUND for situation when official version is way to outdated and Quarry detect it as slotted
+  # In this situation having a slotted version at quarry would clash with the official package
+  # let's check if the official package still matches the dep requirement
+  if ver = @official_packages_versions[[dep.name, nil]]
+    return nil if dep.requirement.satisfied_by?(Gem::Version.new(ver))
+  end
 
   slot = ""
   v1 = required_version.split(".")
