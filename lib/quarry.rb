@@ -281,15 +281,27 @@ def dependency_to_slot(spec, dep)
   # if found package is beta package then its slot equals to the version
   return required_version if prerelease_version?(required_version)
 
-  # if required version is already the last version, then we don't need a versioned dependency
-  return nil unless next_version
-
   # WORKAROUND for situation when official version is way to outdated and Quarry detect it as slotted
   # In this situation having a slotted version at quarry would clash with the official package
   # let's check if the official package still matches the dep requirement
   if ver = @official_packages_versions[[dep.name, nil]]
-    return nil if dep.requirement.satisfied_by?(Gem::Version.new(ver))
+    # workaround for ruby-titlecase that has version 0.1.1+13+1d6b4f7-5
+    ver = ver.split("+")[0]
+
+    gemver = Gem::Version.new(ver)
+
+    return nil if dep.requirement.satisfied_by?(gemver)
+
+    # if we want a newer version than the official package then it needs to be slotted
+    if required_version > gemver
+      # here is a hack (in a good meaning of this word). Set next_version to the smaller 'ver' variable
+      # and slot will be calculated for ver<->required_version gap
+      next_version = ver
+    end
   end
+
+  # if required version is already the last version, then we don't need a versioned dependency
+  return nil unless next_version
 
   slot = ""
   v1 = required_version.split(".")
