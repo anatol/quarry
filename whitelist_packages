@@ -134,6 +134,7 @@ htmlentities
 http_accept_language
 i18n
 image_optim
+importmap-rails
 ipaddress
 jbuilder
 jekyll
@@ -298,6 +299,7 @@ spring
 spring-watcher-listen
 sqlite3
 stackprof
+stimulus-rails
 systemd-journal
 systemd_mon
 t
@@ -316,6 +318,7 @@ timecop
 tmuxinator
 travis
 treetop
+turbo-rails
 turbolinks
 twitter
 typhoeus
