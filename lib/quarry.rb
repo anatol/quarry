@@ -208,15 +208,20 @@ end
 # gems that already exist as packages in the official repositories, and should not be built again.
 # This should be accessed via get_official_packages() to ensure it has been initialized.
 def init_official_packages
-  @official_packages = `pacman -Slq extra community | grep ^ruby-`.split(" ").map { |p| arch_to_pkg(p) }
-  raise unless $?.success?
+  metapackages = %w(ruby-bundledgems)
 
+  @official_packages = []
   @official_packages_versions = {}
-  `pacman -Sl community | grep '^community ruby-'`.split("\n").each do |p|
+  pacman_pkgs = `pacman -Sl community | grep '^community ruby-'`.split("\n")
+  pacman_pkgs.each do |p|
     parts = p.split(" ")
-
-    pkg = arch_to_pkg(parts[1])
+    name = parts[1]
     version = parts[2].split("-")[0]
+
+    next if metapackages.include?(name)
+
+    pkg = arch_to_pkg(name)
+    @official_packages << pkg
     @official_packages_versions[pkg] = version
   end
   raise unless $?.success?
