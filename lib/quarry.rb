@@ -1,4 +1,3 @@
-require "digest/sha1"
 require "erubis"
 require "shellwords"
 require "pathname"
