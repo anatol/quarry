@@ -194,6 +194,13 @@ def arch_to_pkg(arch_name)
   # check if the name itself exists
   return [name, nil] if slot_versions(name, nil)
 
+  if aliases = @config["package_aliases"]
+    gemname = aliases.key(arch_name)
+    if gemname
+      return [gemname, nil]
+    end
+  end
+
   separator = name.rindex("-")
   fail("Cannot find gem for arch package #{arch_name}") unless separator
 
