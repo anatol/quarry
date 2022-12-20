@@ -267,7 +267,6 @@ rspec-puppet-facts
 rspec-rails
 rspotify
 rtlit
-rubocop
 rubocop-graphql
 rubocop-performance
 rubocop-rails
