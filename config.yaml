@@ -1,5 +1,6 @@
 ignored_packages:
   - mini_racer
+  - chef-bin # requires chef that supports ruby 3.1.0 only
 package_aliases:
   concurrent-ruby: ruby-concurrent  # 'concurrent-ruby' should be mapped to 'ruby-concurrent-ruby' package name but instead it named as 'ruby-concurrent'
   RedCloth: ruby-redcloth
