@@ -1,17 +1,10 @@
-commit 9be437ae71cc90e8cf3c5d714dccb62ca5f3a687
-Author: Anatol Pomozov <anatol.pomozov@gmail.com>
-Date:   Thu Dec 16 11:23:34 2021 -0800
-
-    Do not install packages to bundle as a default at Arch
-
-diff --git a/lib/rails/generators/rails/app/app_generator.rb b/railties/lib/rails/generators/rails/app/app_generator.rb
-index f75b5fae33..2d549c39e7 100644
+index 3ac925e4f6..5a208fdbab 100644
 --- a/lib/rails/generators/rails/app/app_generator.rb
 +++ b/lib/rails/generators/rails/app/app_generator.rb
-@@ -267,7 +267,7 @@ class AppGenerator < AppBase
+@@ -275,7 +275,7 @@ class AppGenerator < AppBase
        class_option :minimal, type: :boolean, desc: "Preconfigure a minimal rails app"
        class_option :javascript, type: :string, aliases: "-j", default: "importmap", desc: "Choose JavaScript approach [options: importmap (default), webpack, esbuild, rollup]"
-       class_option :css, type: :string, aliases: "-c", desc: "Choose CSS processor [options: tailwind, bootstrap, bulma, postcss, sass... check https://github.com/rails/cssbundling-rails]"
+       class_option :css, type: :string, aliases: "-c", desc: "Choose CSS processor [options: tailwind, bootstrap, bulma, postcss, sass] check https://github.com/rails/cssbundling-rails"
 -      class_option :skip_bundle, type: :boolean, aliases: "-B", default: false, desc: "Don't run bundle install"
 +      class_option :skip_bundle, type: :boolean, aliases: "-B", default: true, desc: "Don't run bundle install"
  
