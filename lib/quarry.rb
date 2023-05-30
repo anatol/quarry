@@ -169,7 +169,7 @@ end
 
 def pkg_to_arch(name, slot, with_prefix = true)
   if aliases = @config["package_aliases"]
-    # some [community] packages do not follow standard convention so we need to alias them properly
+    # some [extra] packages do not follow standard convention so we need to alias them properly
     # note that arch_to_pkg() does not need such exception. arch_to_pkg() is used for quarry packages only
     # and all quarry packages follow the naming convention.
 
@@ -218,7 +218,7 @@ def init_official_packages
 
   @official_packages = []
   @official_packages_versions = {}
-  pacman_pkgs = `pacman -Sl community | grep '^community ruby-'`.split("\n")
+  pacman_pkgs = `pacman -Sl extra | grep '^extra ruby-'`.split("\n")
   pacman_pkgs.each do |p|
     parts = p.split(" ")
     name = parts[1]
@@ -396,12 +396,12 @@ def init
     raise unless system("sudo rm -f /var/cache/pacman/pkg/ruby-*")
 
     pacman_conf = WORK_DIR + "/pacman.conf"
-    FileUtils.cp("/usr/share/devtools/pacman-extra.conf", pacman_conf)
+    FileUtils.cp("/usr/share/devtools/pacman.conf.d/extra.conf", pacman_conf)
     open(pacman_conf, "a") { |f|
       f.puts "[quarry]"
       f.puts "Server = file://#{INDEX_DIR}"
     }
-    raise unless system("mkarchroot -C #{pacman_conf} -c /var/cache/pacman/pkg/ -M /usr/share/devtools/makepkg-#{ARCHITECTURE}.conf #{CHROOT_ROOT_DIR} base-devel ruby")
+    raise unless system("mkarchroot -C #{pacman_conf} -c /var/cache/pacman/pkg/ -M /usr/share/devtools/makepkg.conf.d/#{ARCHITECTURE}.conf #{CHROOT_ROOT_DIR} base-devel ruby")
   end
 
   pacman_sync_chroot
