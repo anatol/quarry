@@ -156,7 +156,7 @@ def load_arch_packages
 
     # Rubygems likes to yank (delete) published gems.
     # Let's make sure our package is still valid gem.
-    if not gem_exists(key[0], version) and version_gt(version, slot_to_version(*key))
+    if @config["yanked_gems"].include?(key[0]) or (not gem_exists(key[0], version) and version_gt(version, slot_to_version(*key)))
       puts "Gem '#{key[0]}' version '#{version}' is present in Arch index but has been yanked from gem repo. Please update the Arch index to match gem repo."
       next
     end
@@ -273,6 +273,8 @@ def matches_ruby(name, version)
 end
 
 def dependency_to_slot(spec, dep)
+  return nil if @config["yanked_gems"].include?(dep.name)
+
   index = @gems_stable
   all_versions = index[dep.name]
 
@@ -332,6 +334,8 @@ def dependency_to_slot(spec, dep)
 end
 
 def slot_versions(name, slot)
+  return [] if @config["yanked_gems"].include?(name)
+
   prerelease = prerelease_version?(slot)
 
   if not prerelease and @gems_stable[name]
@@ -650,11 +654,17 @@ def build_packages(packages_to_generate, existing_packages)
       packages_to_generate.pop
       next
     end
+    if @config["yanked_gems"].include?(pkg[0])
+      packages_to_generate.pop
+      next
+    end
 
     version = slot_to_version(*pkg)
     spec = package_spec(pkg[0], version)
     upfront_deps = [] # packages should be processed before 'pkg'
     for d in spec.runtime_dependencies
+      next if @config["yanked_gems"].include?(d.name)
+
       s = dependency_to_slot(spec, d)
       key = [d.name, s]
 
