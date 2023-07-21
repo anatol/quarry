@@ -30,12 +30,14 @@ bullet
 bundler
 bunny
 byebug
+camertron-eprun
 cancancan
 capifony
 capistrano
 capistrano-rails
 capybara
 cast
+cldr-plurals-runtime-rb
 ceedling
 celluloid
 certified
@@ -54,6 +56,7 @@ config_curator
 configure-s3-website
 creole
 csv
+ctf-party
 curb
 curses
 dalli
@@ -66,6 +69,7 @@ docopt
 dory
 dotenv
 droxi
+dry-cli
 em-handlersocket
 em-http-request
 em-jack
@@ -325,6 +329,7 @@ tzinfo-data
 uglifier
 unf
 unicorn
+unisec
 unparser
 vagrant-unbundled
 volt
