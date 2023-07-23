@@ -25,6 +25,7 @@ blankslate
 bluecloth
 bootsnap
 bourbon
+bqm
 bropages
 bullet
 bundler
@@ -124,6 +125,7 @@ grpc
 gtk3
 guard
 guard-rake
+haiti-hash
 hanami
 hanami-model
 hashicorp-checkpoint
@@ -225,6 +227,7 @@ overcommit
 padrino
 papertrail
 passenger
+pass-station
 pastel
 pdk
 pg
@@ -322,6 +325,7 @@ thor
 thrift
 tilt
 timecop
+tls-map
 tmuxinator
 travis
 treetop
