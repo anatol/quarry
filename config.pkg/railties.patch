@@ -1,12 +1,13 @@
-index 3ac925e4f6..5a208fdbab 100644
+diff --git a/railties/lib/rails/generators/rails/app/app_generator.rb b/railties/lib/rails/generators/rails/app/app_generator.rb
+index ef456d47e5..b48c2da04a 100644
 --- a/lib/rails/generators/rails/app/app_generator.rb
 +++ b/lib/rails/generators/rails/app/app_generator.rb
-@@ -275,7 +275,7 @@ class AppGenerator < AppBase
+@@ -279,7 +279,7 @@ class AppGenerator < AppBase
        class_option :minimal, type: :boolean, desc: "Preconfigure a minimal rails app"
-       class_option :javascript, type: :string, aliases: "-j", default: "importmap", desc: "Choose JavaScript approach [options: importmap (default), webpack, esbuild, rollup]"
-       class_option :css, type: :string, aliases: "-c", desc: "Choose CSS processor [options: tailwind, bootstrap, bulma, postcss, sass] check https://github.com/rails/cssbundling-rails"
--      class_option :skip_bundle, type: :boolean, aliases: "-B", default: false, desc: "Don't run bundle install"
+       class_option :javascript, type: :string, aliases: ["-j", "--js"], default: "importmap", desc: "Choose JavaScript approach [options: importmap (default), bun, webpack, esbuild, rollup]"
+       class_option :css, type: :string, aliases: "-c", desc: "Choose CSS processor [options: tailwind, bootstrap, bulma, postcss, sass] check https://github.com/rails/cssbundling-rails for more options"
+-      class_option :skip_bundle, type: :boolean, aliases: "-B", default: nil, desc: "Don't run bundle install"
 +      class_option :skip_bundle, type: :boolean, aliases: "-B", default: true, desc: "Don't run bundle install"
+       class_option :skip_decrypted_diffs, type: :boolean, default: nil, desc: "Don't configure git to show decrypted diffs of encrypted credentials"
  
-       def initialize(*args)
-         super
+       OPTION_IMPLICATIONS = # :nodoc:
