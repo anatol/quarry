@@ -153,6 +153,7 @@ jekyll-compose
 jekyll-feed
 jekyll-gist
 jekyll-import
+jekyll-include-cache
 jekyll-paginate-v2
 jekyll-redirect-from
 jekyll-seo-tag
@@ -163,6 +164,7 @@ jose
 jquery-rails
 jquery-ui-rails
 json
+just-the-docs
 kbsecret
 kh2hc
 knife-azure
