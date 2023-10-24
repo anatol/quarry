@@ -3,5 +3,6 @@ optdepends:
   ruby-rdiscount: Alternative markdown parser
   ruby-jekyll-archives: Plugin to generate archive pages
   ruby-jekyll-feed: Plugin to generate an Atom feed
+  ruby-jekyll-include-cache: Plugin to cache the rendering of Liquid includes
   ruby-jekyll-seo-tag: Plugin to add meta tags for SEO
   ruby-jekyll-sitemap: Plugin to generate sitemap
