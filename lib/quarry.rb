@@ -1,4 +1,4 @@
-require "erubis"
+require "erubi"
 require "shellwords"
 require "pathname"
 require "rubygems/name_tuple"
@@ -584,7 +584,10 @@ def generate_pkgbuild(name, slot, existing_pkg, config)
     gem_install_args: gem_install_args,
     contains_extensions: !spec.extensions.empty?,
   }
-  content = Erubis::Eruby.new(PKGBUILD).result(params)
+  template = Erubi::Engine.new(PKGBUILD).src
+  b = binding
+  params.each do |var, val| b.local_variable_set(var, val) end
+  content = b.eval(template)
 
   return content, gem_path, bin_filename
 end
