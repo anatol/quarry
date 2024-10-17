@@ -227,7 +227,6 @@ overcommit
 padrino
 papertrail
 passenger
-pass-station
 pastel
 pdk
 pg
@@ -242,7 +241,6 @@ puppet-lint
 puppetlabs_spec_helper
 pygments.rb
 r2
-rabid
 racc
 rack
 rack-cache
@@ -341,7 +339,6 @@ unicorn
 unisec
 unparser
 vagrant-unbundled
-vbsmin
 volt
 vte3
 watir-webdriver
