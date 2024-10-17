@@ -5,5 +5,6 @@ package_aliases:
   concurrent-ruby: ruby-concurrent  # 'concurrent-ruby' should be mapped to 'ruby-concurrent-ruby' package name but instead it named as 'ruby-concurrent'
   RedCloth: ruby-redcloth
   rubocop: rubocop
+  Ascii85: ruby-ascii85
 yanked_gems:
   - git_plus
