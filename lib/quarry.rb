@@ -214,7 +214,7 @@ end
 # gems that already exist as packages in the official repositories, and should not be built again.
 # This should be accessed via get_official_packages() to ensure it has been initialized.
 def init_official_packages
-  metapackages = %w(ruby-bundledgems)
+  metapackages = %w(ruby-bundled-gems ruby-default-gems)
 
   @official_packages = []
   @official_packages_versions = {}
