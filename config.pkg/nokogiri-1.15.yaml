@@ -1,0 +1,4 @@
+gem_install_args: -- --use-system-libraries --with-cflags=-Wno-error=incompatible-pointer-types
+depends:
+  - xz
+  - libxslt
