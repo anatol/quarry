@@ -1,0 +1,2 @@
+# https://github.com/grpc/grpc/issues/35148
+gem_install_args: -- --with-cflags=-Wno-error=incompatible-function-pointer-types
